@@ -1,0 +1,3509 @@
+
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VLESS Tools</title>
+  <script>
+    (function () {
+      var theme = "cyber";
+      try { theme = localStorage.getItem("vless-ui-theme") || "cyber"; } catch (_) {}
+      document.documentElement.setAttribute("data-ui-theme", theme === "simple" ? "simple" : "cyber");
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@500;700;800&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style id="theme-cyber">/* ═══ VLESS Tools — CP2077 / CyberDeck HUD ═══ */html[data-ui-theme="cyber"] {
+  --bg: #050505;
+  --bg-2: #0a0a0a;
+  --bg-panel: #0c0c0c;
+  --bg-inset: #070707;
+  --fg: #f5f5f5;
+  --fg-dim: #6e6e6e;
+  --fg-muted: #3a3a3a;
+  --yellow: #fcee09;
+  --yellow-dim: rgba(252, 238, 9, 0.12);
+  --yellow-glow: rgba(252, 238, 9, 0.45);
+  --cyan: #00f0ff;
+  --cyan-dim: rgba(0, 240, 255, 0.1);
+  --cyan-glow: rgba(0, 240, 255, 0.35);
+  --magenta: #ff006e;
+  --magenta-dim: rgba(255, 0, 110, 0.12);
+  --red: #ff2d2d;
+  --orange: #ff8c00;
+  --purple: #b026ff;
+  --success: #00f0ff;
+  --error: #ff2d2d;
+  --border-y: rgba(252, 238, 9, 0.45);
+  --border-y-soft: rgba(252, 238, 9, 0.18);
+  --border-c: rgba(0, 240, 255, 0.35);
+  --font-sans: "Rubik", system-ui, sans-serif;
+  --font-sans-fa: "Estedad", "Rubik", system-ui, sans-serif;
+  --font-display: "Orbitron", "Rubik", sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  --hazard: repeating-linear-gradient(-45deg, var(--yellow) 0 6px, #000 6px 12px);
+}html[data-ui-theme="cyber"][lang="fa"] {
+  --font-sans: var(--font-sans-fa);
+}html[data-ui-theme="cyber"][lang="fa"] .brand h1, html[data-ui-theme="cyber"][lang="fa"] .card-title {
+  font-family: var(--font-sans-fa);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}html[data-ui-theme="cyber"] *, html[data-ui-theme="cyber"] *::before, html[data-ui-theme="cyber"] *::after { box-sizing: border-box; outline: none; }html[data-ui-theme="cyber"] { scroll-behavior: smooth; }html[data-ui-theme="cyber"] body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}/* ── System chrome ── */html[data-ui-theme="cyber"] .sys-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: stretch;
+  border-bottom: 2px solid var(--yellow);
+  background: #000;
+}html[data-ui-theme="cyber"] .sys-top-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 16px;
+  overflow: hidden;
+  min-height: 28px;
+}html[data-ui-theme="cyber"] .sys-binary {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--yellow);
+  opacity: 0.55;
+  white-space: nowrap;
+  animation: binaryScroll 40s linear infinite;
+}@keyframes binaryScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}html[data-ui-theme="cyber"] .sys-top-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--fg-dim);
+  white-space: nowrap;
+}html[data-ui-theme="cyber"] .sys-top-tag strong { color: var(--yellow); }html[data-ui-theme="cyber"] .sys-hazard {
+  width: 120px;
+  background: var(--hazard);
+  border-left: 2px solid var(--yellow);
+  flex-shrink: 0;
+}html[data-ui-theme="cyber"] .sys-footer {
+  border-top: 2px solid var(--yellow);
+  background: #000;
+  padding: 8px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px 20px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--fg-dim);
+}html[data-ui-theme="cyber"] .sys-footer strong { color: var(--yellow); }html[data-ui-theme="cyber"] .sys-footer-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}html[data-ui-theme="cyber"] .sys-footer-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan-glow);
+  animation: blink 2s ease infinite;
+}@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}/* ── App shell + rail ── */html[data-ui-theme="cyber"] .app-shell {
+  display: flex;
+  min-height: calc(100vh - 28px - 36px);
+  position: relative;
+}html[data-ui-theme="cyber"] .sys-rail {
+  width: 28px;
+  flex-shrink: 0;
+  background: #000;
+  border-left: 1px solid var(--border-y-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  color: var(--fg-muted);
+  padding: 20px 0;
+  user-select: none;
+}html[data-ui-theme="cyber"] .sys-rail span { color: var(--yellow); opacity: 0.5; }html[data-ui-theme="cyber"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(rgba(252, 238, 9, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(252, 238, 9, 0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+}html[data-ui-theme="cyber"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.035;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.5) 2px, rgba(0,0,0,0.5) 4px);
+}html[data-ui-theme="cyber"] ::-webkit-scrollbar { width: 5px; height: 5px; }html[data-ui-theme="cyber"] ::-webkit-scrollbar-track { background: var(--bg); }html[data-ui-theme="cyber"] ::-webkit-scrollbar-thumb {
+  background: var(--yellow);
+  border: 1px solid #000;
+}html[data-ui-theme="cyber"] .container {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 20px 32px;
+  width: 100%;
+}/* ── Header ── */html[data-ui-theme="cyber"] header {
+  margin-bottom: 24px;
+  position: relative;
+}html[data-ui-theme="cyber"] header::after {
+  content: "";
+  display: block;
+  height: 6px;
+  margin-top: 20px;
+  background: var(--hazard);
+  opacity: 0.85;
+}html[data-ui-theme="cyber"] .brand {
+  position: relative;
+  padding: 16px 20px;
+  border: 1px solid var(--border-y);
+  background: var(--bg-panel);
+}html[data-ui-theme="cyber"] .brand::before, html[data-ui-theme="cyber"] .brand::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .brand::before {
+  top: -1px;
+  right: -1px;
+  border-top: 3px solid var(--yellow);
+  border-right: 3px solid var(--yellow);
+}html[data-ui-theme="cyber"] .brand::after {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 3px solid var(--yellow);
+  border-left: 3px solid var(--yellow);
+}html[data-ui-theme="cyber"] .brand-kicker {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--yellow);
+  margin-bottom: 0;
+  opacity: 0.8;
+}html[data-ui-theme="cyber"] .brand-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}html[data-ui-theme="cyber"] .lang-switch {
+  display: flex;
+  border: 1px solid var(--border-y-soft);
+  background: var(--bg-inset);
+}html[data-ui-theme="cyber"] .lang-btn {
+  background: transparent;
+  border: none;
+  border-inline-start: 1px solid var(--border-y-soft);
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.18s;
+}html[data-ui-theme="cyber"] .lang-btn:first-child { border-inline-start: none; }html[data-ui-theme="cyber"] .lang-btn:hover { color: var(--yellow); background: var(--yellow-dim); }html[data-ui-theme="cyber"] .lang-btn.active {
+  color: #000;
+  background: var(--yellow);
+}html[data-ui-theme="cyber"] .header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}html[data-ui-theme="cyber"] .theme-switch {
+  display: flex;
+  border: 1px solid var(--border-y-soft);
+  background: var(--bg-inset);
+}html[data-ui-theme="cyber"] .theme-btn {
+  background: transparent;
+  border: none;
+  border-inline-start: 1px solid var(--border-y-soft);
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s;
+}html[data-ui-theme="cyber"] .theme-switch .theme-btn:first-child { border-inline-start: none; }html[data-ui-theme="cyber"] .theme-btn:hover { color: var(--yellow); background: var(--yellow-dim); }html[data-ui-theme="cyber"] .theme-btn.active {
+  color: #000;
+  background: var(--yellow);
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .brand h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 3.5vw, 2.1rem);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg);
+  line-height: 1.15;
+}html[data-ui-theme="cyber"] .brand h1 em {
+  font-style: normal;
+  color: var(--yellow);
+  text-shadow: 0 0 30px var(--yellow-glow);
+}html[data-ui-theme="cyber"] .brand p {
+  margin: 8px 0 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--fg-dim);
+}html[data-ui-theme="cyber"] .brand p code {
+  color: var(--cyan);
+  background: var(--cyan-dim);
+  padding: 1px 6px;
+  border: 1px solid var(--border-c);
+}/* ── Tabs ── */html[data-ui-theme="cyber"] .tabs-nav {
+  display: flex;
+  gap: 0;
+  margin-top: 16px;
+  border: 1px solid var(--border-y);
+  background: var(--bg-inset);
+}html[data-ui-theme="cyber"] .tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border-y-soft);
+  color: var(--fg-dim);
+  padding: 14px 12px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+  position: relative;
+}html[data-ui-theme="cyber"] .tab-btn:first-child { border-left: none; }html[data-ui-theme="cyber"] .tab-id {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding: 3px 6px;
+  border: 1px solid var(--fg-muted);
+  color: var(--fg-muted);
+  transition: all 0.2s;
+}html[data-ui-theme="cyber"] .tab-label { letter-spacing: 0.02em; }html[data-ui-theme="cyber"] .tab-btn:hover {
+  color: var(--yellow);
+  background: var(--yellow-dim);
+}html[data-ui-theme="cyber"] .tab-btn:hover .tab-id {
+  border-color: var(--yellow);
+  color: var(--yellow);
+}html[data-ui-theme="cyber"] .tab-btn.active {
+  color: #000;
+  background: var(--yellow);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.2);
+}html[data-ui-theme="cyber"] .tab-btn.active .tab-id {
+  background: #000;
+  border-color: #000;
+  color: var(--yellow);
+}html[data-ui-theme="cyber"] .tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}html[data-ui-theme="cyber"] .tab-content { display: none; animation: panelIn 0.3s ease; }html[data-ui-theme="cyber"] .tab-content.active { display: block; }@keyframes panelIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}/* ── Grid ── */html[data-ui-theme="cyber"] .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }@media (min-width: 900px){html[data-ui-theme="cyber"] .grid { grid-template-columns: 1.15fr 0.85fr; }}html[data-ui-theme="cyber"] .grid.generator-grid { align-items: stretch; }html[data-ui-theme="cyber"] .grid.generator-grid > .card { min-height: 420px; }/* ── Cards / HUD panels ── */html[data-ui-theme="cyber"] .card {
+  position: relative;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-y-soft);
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+  min-width: 0;
+  overflow: hidden;
+}/* هدر تمام‌عرض داخل کارت — بدون overflow */html[data-ui-theme="cyber"] .card > .card-head {
+  margin-inline: -16px;
+}html[data-ui-theme="cyber"] .card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--yellow);
+  box-shadow: 0 0 12px var(--yellow-glow);
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .card::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  bottom: 8px;
+  inset-inline-start: 8px;
+  border-bottom: 2px solid var(--yellow);
+  border-inline-start: 2px solid var(--yellow);
+  opacity: 0.6;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .panel-serial {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 12px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 0;
+  color: var(--fg-muted);
+  z-index: 2;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px 12px;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--border-y-soft);
+  background: linear-gradient(180deg, rgba(252,238,9,0.04) 0%, transparent 100%);
+  position: relative;
+}html[data-ui-theme="cyber"] .card-head::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 52px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--fg-muted);
+  border-inline-end: 2px solid var(--fg-muted);
+  opacity: 0.35;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .card > .card-head + *:not(.panel-serial) {
+  margin-top: 14px;
+}html[data-ui-theme="cyber"] .card-stack { margin-top: 20px; }/* ── Textarea sizing ── */html[data-ui-theme="cyber"] textarea {
+  display: block;
+  max-width: 100%;
+  box-sizing: border-box;
+}html[data-ui-theme="cyber"] .area-xs { height: 90px; min-height: 90px; resize: vertical; margin-bottom: 12px; }html[data-ui-theme="cyber"] .area-sm { height: 140px; min-height: 140px; resize: vertical; }html[data-ui-theme="cyber"] .area-md { height: 180px; min-height: 180px; resize: vertical; }html[data-ui-theme="cyber"] .area-lg { height: 250px; min-height: 250px; resize: vertical; }html[data-ui-theme="cyber"] .area-xl { height: 280px; min-height: 280px; resize: vertical; }html[data-ui-theme="cyber"] .area-fill { flex: 1; min-height: 220px; height: 220px; resize: none; }html[data-ui-theme="cyber"] .card textarea, html[data-ui-theme="cyber"] .card select, html[data-ui-theme="cyber"] .card input:not([type="checkbox"]):not([type="range"]):not(.input-mini):not(.cdn-output-num) {
+  width: 100%;
+  max-width: 100%;
+}html[data-ui-theme="cyber"] .card-title {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg);
+}html[data-ui-theme="cyber"] .card-title::before {
+  content: "▸";
+  color: var(--yellow);
+  font-size: 10px;
+}html[data-ui-theme="cyber"] .tag {
+  font-size: 8px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--yellow);
+  border: 1px solid var(--border-y);
+  font-family: var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}html[data-ui-theme="cyber"] .tag::before { content: "["; margin-left: 2px; }html[data-ui-theme="cyber"] .tag::after { content: "]"; margin-right: 2px; }html[data-ui-theme="cyber"] .card-config .config-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  margin-top: 12px;
+}html[data-ui-theme="cyber"] .config-hint {
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin-bottom: 10px;
+  line-height: 1.6;
+  font-family: var(--font-mono);
+}html[data-ui-theme="cyber"] .config-hint code {
+  color: var(--cyan);
+  background: var(--cyan-dim);
+  padding: 1px 5px;
+  border: 1px solid var(--border-c);
+}/* ── Inputs ── */html[data-ui-theme="cyber"] label { display: block; color: var(--fg-dim); font-size: 12px; margin-bottom: 8px; font-family: var(--font-mono); letter-spacing: 0.04em; }html[data-ui-theme="cyber"] textarea, html[data-ui-theme="cyber"] input:not([type="checkbox"]):not([type="range"]), html[data-ui-theme="cyber"] select {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  color: var(--fg);
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}html[data-ui-theme="cyber"] textarea {
+  resize: vertical;
+  line-height: 1.55;
+  word-break: break-all;
+}html[data-ui-theme="cyber"] textarea:focus, html[data-ui-theme="cyber"] input:focus, html[data-ui-theme="cyber"] select:focus {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 1px var(--yellow-dim), inset 0 0 20px rgba(252,238,9,0.03);
+}/* مخفی کردن فلش بالا/پایین input number */html[data-ui-theme="cyber"] input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}html[data-ui-theme="cyber"] input[type="number"]::-webkit-outer-spin-button, html[data-ui-theme="cyber"] input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}html[data-ui-theme="cyber"] #config {
+  border-color: var(--border-c);
+  color: var(--cyan);
+  background: rgba(0, 240, 255, 0.02);
+}html[data-ui-theme="cyber"] #config:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan-dim), 0 0 20px rgba(0,240,255,0.08);
+}html[data-ui-theme="cyber"] #out {
+  border-color: var(--border-c);
+  background: rgba(0, 240, 255, 0.03);
+  color: var(--cyan);
+}html[data-ui-theme="cyber"] #extOut {
+  border-color: rgba(255, 0, 110, 0.35);
+  background: var(--magenta-dim);
+  color: #ffb3d9;
+}html[data-ui-theme="cyber"] #extDiff {
+  border-color: var(--border-y-soft);
+  background: var(--yellow-dim);
+  color: var(--yellow);
+}html[data-ui-theme="cyber"] #morphOutput, html[data-ui-theme="cyber"] #spoofOutput {
+  border-color: rgba(176, 38, 255, 0.35);
+  background: rgba(176, 38, 255, 0.04);
+}html[data-ui-theme="cyber"] #ips, html[data-ui-theme="cyber"] #ipRanges {
+  flex: 1;
+}html[data-ui-theme="cyber"] .card input.input-mini {
+  width: 50px;
+  flex-shrink: 0;
+}/* ── IP subtabs ── */html[data-ui-theme="cyber"] .ip-subtabs {
+  display: flex;
+  gap: 0;
+  margin-top: 12px;
+  border: 1px solid var(--border-y-soft);
+  background: var(--bg-inset);
+}html[data-ui-theme="cyber"] .ip-subtab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border-y-soft);
+  color: var(--fg-dim);
+  padding: 10px;
+  font-weight: 600;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s;
+}html[data-ui-theme="cyber"] .ip-subtab:first-child { border-left: none; }html[data-ui-theme="cyber"] .ip-subtab:hover { color: var(--yellow); background: var(--yellow-dim); }html[data-ui-theme="cyber"] .ip-subtab.active {
+  color: #000;
+  background: var(--yellow);
+}html[data-ui-theme="cyber"] .ip-panel { display: none; flex: 1; flex-direction: column; min-height: 0; margin-top: 12px; }html[data-ui-theme="cyber"] .ip-panel.active { display: flex; }/* ── CDN toolbar ── */html[data-ui-theme="cyber"] .cdn-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}html[data-ui-theme="cyber"] .btn-cdn {
+  flex: 1;
+  min-width: 90px;
+  height: 34px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--border-y-soft);
+  background: var(--bg-inset);
+  color: var(--fg-dim);
+  font-family: var(--font-display);
+  transition: all 0.2s;
+}html[data-ui-theme="cyber"] .btn-cdn:hover { color: var(--fg); border-color: var(--yellow); }html[data-ui-theme="cyber"] .btn-cdn.cf:hover { border-color: #f38020; color: #f38020; }html[data-ui-theme="cyber"] .btn-cdn.fastly:hover { border-color: #ff0200; color: #ff0200; }html[data-ui-theme="cyber"] .btn-cdn.gcore:hover { border-color: #ff5722; color: #ff5722; }html[data-ui-theme="cyber"] .btn-shuffle {
+  border-color: var(--yellow) !important;
+  color: var(--yellow) !important;
+  background: var(--yellow-dim) !important;
+}html[data-ui-theme="cyber"] .btn-shuffle:hover {
+  background: var(--yellow) !important;
+  color: #000 !important;
+}html[data-ui-theme="cyber"] .range-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }html[data-ui-theme="cyber"] .range-actions .btn-shuffle { width: 100%; }html[data-ui-theme="cyber"] .cdn-output-row { margin-bottom: 10px; }html[data-ui-theme="cyber"] .cdn-output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}html[data-ui-theme="cyber"] .cdn-output-head label {
+  margin: 0;
+  font-size: 10px;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+}html[data-ui-theme="cyber"] .cdn-output-num {
+  width: 90px;
+  padding: 8px;
+  font-size: 13px;
+  text-align: center;
+  border-color: var(--border-y);
+  color: var(--yellow);
+}html[data-ui-theme="cyber"] .cdn-output-row input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  padding: 0;
+  cursor: pointer;
+}html[data-ui-theme="cyber"] .cdn-output-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--yellow);
+  border: 2px solid #000;
+  cursor: pointer;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}html[data-ui-theme="cyber"] .cdn-output-row input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--yellow);
+  border: 2px solid #000;
+  cursor: pointer;
+}html[data-ui-theme="cyber"] .range-hint {
+  font-size: 10px;
+  color: var(--fg-dim);
+  margin-bottom: 8px;
+  line-height: 1.55;
+  font-family: var(--font-mono);
+}/* ── Metrics (diamond HUD style) ── */html[data-ui-theme="cyber"] .metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}html[data-ui-theme="cyber"] .metric {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  padding: 14px 8px 10px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}html[data-ui-theme="cyber"] .metric::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--cyan) 0 3px, transparent 3px 5px);
+  opacity: 0.5;
+}html[data-ui-theme="cyber"] .metric::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: var(--hazard);
+  opacity: 0.35;
+}html[data-ui-theme="cyber"] .metric-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--yellow);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 0;
+  text-shadow: 0 0 12px var(--yellow-glow);
+  line-height: 1.2;
+}html[data-ui-theme="cyber"] .metric-lbl {
+  font-size: 0.6rem;
+  color: var(--fg-dim);
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}/* ── Toolbar ── */html[data-ui-theme="cyber"] .toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 14px;
+  background: var(--bg-inset);
+  padding: 10px;
+  border: 1px solid var(--border-y-soft);
+}html[data-ui-theme="cyber"] .control-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  background: var(--bg);
+  border: 1px solid var(--border-y-soft);
+  font-family: var(--font-mono);
+}html[data-ui-theme="cyber"] .control-group label {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  white-space: nowrap;
+}html[data-ui-theme="cyber"] .input-mini {
+  width: 50px;
+  height: 26px;
+  padding: 0 13px 0 11px;
+  text-align: center;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  color: var(--yellow);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 0;
+}html[data-ui-theme="cyber"] .input-mini:focus {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 1px var(--yellow-dim);
+}html[data-ui-theme="cyber"] .vertical-separator {
+  width: 1px;
+  height: 22px;
+  background: var(--border-y-soft);
+  margin: 0 4px;
+}html[data-ui-theme="cyber"] .spacer-div { flex-grow: 1; }/* ── Buttons ── */html[data-ui-theme="cyber"] .btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  height: 36px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: all 0.18s;
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  gap: 6px;
+  white-space: nowrap;
+}html[data-ui-theme="cyber"] .btn-block { width: 100%; }html[data-ui-theme="cyber"] .btn-flex { flex: 1; }html[data-ui-theme="cyber"] .btn-morph { margin-bottom: 15px; }html[data-ui-theme="cyber"] .toolbar-block {
+  margin-top: 10px;
+  margin-bottom: 0;
+}html[data-ui-theme="cyber"] .ico {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}html[data-ui-theme="cyber"] .btn-secondary {
+  background: var(--bg);
+  color: var(--fg-dim);
+  border-color: var(--border-y-soft);
+}html[data-ui-theme="cyber"] .btn-secondary:hover {
+  color: var(--yellow);
+  border-color: var(--yellow);
+  background: var(--yellow-dim);
+}html[data-ui-theme="cyber"] .btn-blue {
+  background: var(--yellow);
+  color: #000;
+  border-color: var(--yellow);
+  box-shadow: 0 0 20px var(--yellow-glow);
+}html[data-ui-theme="cyber"] .btn-blue:hover {
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 28px rgba(255,255,255,0.3);
+}html[data-ui-theme="cyber"] .btn-purple {
+  background: transparent;
+  color: var(--magenta);
+  border-color: var(--magenta);
+}html[data-ui-theme="cyber"] .btn-purple:hover {
+  background: var(--magenta);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255,0,110,0.4);
+}html[data-ui-theme="cyber"] .btn-gold {
+  background: transparent;
+  color: var(--yellow);
+  border-color: var(--border-y);
+}html[data-ui-theme="cyber"] .btn-gold:hover {
+  background: var(--yellow);
+  color: #000;
+}html[data-ui-theme="cyber"] .btn-danger {
+  color: var(--red);
+  background: transparent;
+  border-color: rgba(255,45,45,0.4);
+}html[data-ui-theme="cyber"] .btn-danger:hover {
+  background: var(--red);
+  color: #fff;
+}html[data-ui-theme="cyber"] .btn-nav {
+  min-width: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 14px;
+}html[data-ui-theme="cyber"] .status-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--fg-muted);
+  display: inline-block;
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}html[data-ui-theme="cyber"] .status-dot.ok {
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: pulseDot 2s ease infinite;
+}@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}html[data-ui-theme="cyber"] .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }/* ── Toast notification (bottom cyber bar) ── */html[data-ui-theme="cyber"] .toast-host {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 42px;
+  z-index: 10001;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(540px, 100%);
+  min-height: 48px;
+  padding: 12px 16px 12px 14px;
+  background: rgba(7, 7, 7, 0.96);
+  border: 1px solid var(--border-y-soft);
+  border-inline-start: 3px solid var(--yellow);
+  box-shadow:
+    0 -8px 40px rgba(0, 0, 0, 0.65),
+    0 0 24px rgba(252, 238, 9, 0.08);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--fg);
+  opacity: 0;
+  transform: translateY(calc(100% + 24px));
+  transition:
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.32s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}html[data-ui-theme="cyber"] .toast-accent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--hazard);
+  opacity: 0.75;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .toast::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--yellow), transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}html[data-ui-theme="cyber"] .toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}html[data-ui-theme="cyber"] .toast-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000;
+  background: var(--yellow);
+  border: 1px solid var(--yellow);
+  box-shadow: 0 0 12px var(--yellow-glow);
+}html[data-ui-theme="cyber"] .toast-text {
+  flex: 1;
+  line-height: 1.45;
+  min-width: 0;
+  word-break: break-word;
+}html[data-ui-theme="cyber"] .toast-tag {
+  flex-shrink: 0;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: var(--fg-muted);
+  opacity: 0.7;
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid var(--border-y-soft);
+}html[data-ui-theme="cyber"] .toast--success {
+  border-inline-start-color: var(--cyan);
+  color: #d4fffb;
+}html[data-ui-theme="cyber"] .toast--success .toast-icon {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: #000;
+  box-shadow: 0 0 14px var(--cyan-glow);
+}html[data-ui-theme="cyber"] .toast--success::before {
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}html[data-ui-theme="cyber"] .toast--warn {
+  border-inline-start-color: var(--yellow);
+  color: #fff9c4;
+}html[data-ui-theme="cyber"] .toast--warn .toast-icon {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: #000;
+}html[data-ui-theme="cyber"] .toast--error {
+  border-inline-start-color: var(--red);
+  color: #ffd4d4;
+}html[data-ui-theme="cyber"] .toast--error .toast-icon {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(255, 45, 45, 0.45);
+}html[data-ui-theme="cyber"] .toast--error::before {
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}html[data-ui-theme="cyber"] .toast--error .toast-accent {
+  background: repeating-linear-gradient(-45deg, var(--red) 0 6px, #000 6px 12px);
+}html[data-ui-theme="cyber"] .toast--info {
+  border-inline-start-color: var(--cyan);
+}html[data-ui-theme="cyber"] .toast--info .toast-icon {
+  background: transparent;
+  color: var(--cyan);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  animation: toastPulse 1.2s ease infinite;
+}@keyframes toastPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}@media (max-width: 768px){html[data-ui-theme="cyber"] .toast-host { bottom: 56px; padding: 0 10px; }html[data-ui-theme="cyber"] .toast { min-height: 44px; padding: 10px 12px; font-size: 11px; }html[data-ui-theme="cyber"] .toast-tag { display: none; }}html[data-ui-theme="cyber"] .part-info {
+  font-size: 11px;
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}/* ── Dropzone ── */html[data-ui-theme="cyber"] .dropzone {
+  margin-top: 12px;
+  border: 1px dashed var(--border-y-soft);
+  padding: 14px;
+  background: var(--bg-inset);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: 0.2s;
+  user-select: none;
+}html[data-ui-theme="cyber"] .dropzone strong { font-size: 12px; color: var(--fg); font-family: var(--font-mono); }html[data-ui-theme="cyber"] .dropzone small { color: var(--fg-dim); display: block; margin-top: 4px; font-size: 10px; line-height: 1.45; font-family: var(--font-mono); }html[data-ui-theme="cyber"] .dropzone.dragover { border-color: var(--yellow); background: var(--yellow-dim); }html[data-ui-theme="cyber"] .drop-actions {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}html[data-ui-theme="cyber"] .drop-actions .btn, html[data-ui-theme="cyber"] .drop-actions .toggle {
+  height: 36px;
+  flex-shrink: 0;
+}html[data-ui-theme="cyber"] .toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  background: var(--bg);
+  border: 1px solid var(--border-y-soft);
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}html[data-ui-theme="cyber"] .toggle:hover {
+  border-color: var(--yellow);
+  color: var(--yellow);
+  background: var(--yellow-dim);
+}html[data-ui-theme="cyber"] .toggle input {
+  accent-color: var(--yellow);
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  flex-shrink: 0;
+}html[data-ui-theme="cyber"] #ipFile { display: none; }/* ── Switches ── */html[data-ui-theme="cyber"] .extract-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: center;
+}html[data-ui-theme="cyber"] .extract-filter { margin-bottom: 10px; }html[data-ui-theme="cyber"] .switch-item {
+  flex: 1;
+  min-width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.2s, background 0.2s;
+}html[data-ui-theme="cyber"] .switch-item:hover { border-color: var(--border-y); }html[data-ui-theme="cyber"] .switch-item:has(input:checked) {
+  border-color: var(--yellow);
+  background: var(--yellow-dim);
+}html[data-ui-theme="cyber"] .switch-item .switch-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--fg-dim);
+  transition: color 0.2s;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}html[data-ui-theme="cyber"] .switch-item:has(input:checked) .switch-label { color: var(--yellow); }html[data-ui-theme="cyber"] .extract-filter .switch-item {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}html[data-ui-theme="cyber"] .extract-filter .switch-item:has(input:checked) {
+  border-color: var(--magenta);
+  background: var(--magenta-dim);
+}html[data-ui-theme="cyber"] .extract-filter .switch-item:has(input:checked) .switch-label { color: var(--magenta); }html[data-ui-theme="cyber"] .extract-filter .switch input:checked + .switch-slider {
+  background: var(--magenta);
+}html[data-ui-theme="cyber"] .ext-cidr-switch { margin-top: 12px; margin-bottom: 0; }html[data-ui-theme="cyber"] .ext-cidr-switch .switch-item:has(input:checked) {
+  border-color: var(--yellow);
+  background: var(--yellow-dim);
+}html[data-ui-theme="cyber"] .ext-cidr-switch .switch-item:has(input:checked) .switch-label { color: var(--yellow); }html[data-ui-theme="cyber"] .ext-cidr-switch .switch input:checked + .switch-slider { background: var(--yellow); }html[data-ui-theme="cyber"] .switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+  flex-shrink: 0;
+}html[data-ui-theme="cyber"] .switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}html[data-ui-theme="cyber"] .switch-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  transition: background 0.25s;
+  cursor: pointer;
+  border: 1px solid var(--border-y-soft);
+}html[data-ui-theme="cyber"] .switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--fg-dim);
+  transition: transform 0.25s, background 0.25s;
+}html[data-ui-theme="cyber"] .switch input:checked + .switch-slider {
+  background: rgba(252, 238, 9, 0.15);
+  border-color: var(--yellow);
+}html[data-ui-theme="cyber"] .switch input:checked + .switch-slider::before {
+  transform: translate(18px, -50%);
+  background: var(--yellow);
+}html[data-ui-theme="cyber"] .info-box {
+  background: var(--cyan-dim);
+  border: 1px solid var(--border-c);
+  border-right: 3px solid var(--cyan);
+  padding: 12px 14px;
+  font-size: 11px;
+  color: var(--fg-dim);
+  margin-bottom: 14px;
+  line-height: 1.65;
+  font-family: var(--font-mono);
+}html[data-ui-theme="cyber"] .info-box strong { color: var(--cyan); }html[data-ui-theme="cyber"] #btnExtract {
+  white-space: normal;
+  line-height: 1.4;
+  min-height: 38px;
+  height: auto;
+  padding: 10px 12px;
+}html[data-ui-theme="cyber"] #morphAddrFields { margin-bottom: 14px; }html[data-ui-theme="cyber"] .spoof-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}html[data-ui-theme="cyber"] .dropzone-text { min-width: 0; flex: 1; }html[data-ui-theme="cyber"] .spoof-field label { font-size: 11px; font-weight: 600; }html[data-ui-theme="cyber"] .spoof-field input { font-family: var(--font-mono); }html[data-ui-theme="cyber"] .sni-host-switch { margin-bottom: 14px; }html[data-ui-theme="cyber"] .sni-host-switch .switch-item {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+}html[data-ui-theme="cyber"] .sni-host-switch .switch-label code {
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}html[data-ui-theme="cyber"] .morph-spoof-bar { margin-bottom: 14px; }html[data-ui-theme="cyber"] .morph-spoof-bar .switch-item {
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+}html[data-ui-theme="cyber"] .morph-spoof-bar .switch-item:has(input:checked) {
+  border-color: var(--purple);
+  background: rgba(176, 38, 255, 0.08);
+}html[data-ui-theme="cyber"] .morph-spoof-bar .switch-item:has(input:checked) .switch-label { color: var(--purple); }html[data-ui-theme="cyber"] .morph-spoof-bar .switch-label small {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--fg-dim);
+  margin-top: 3px;
+  text-transform: none;
+}html[data-ui-theme="cyber"] .morph-spoof-bar .switch input:checked + .switch-slider { background: var(--purple); }html[data-ui-theme="cyber"] .morph-switch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}html[data-ui-theme="cyber"] .morph-panel { display: none; }html[data-ui-theme="cyber"] .morph-panel.active { display: block; }/* ── Output divider (hazard + HUD rail) ── */html[data-ui-theme="cyber"] .hud-divider {
+  margin-top: 24px;
+  position: relative;
+}html[data-ui-theme="cyber"] .hud-divider::before {
+  content: "";
+  display: block;
+  height: 6px;
+  margin-bottom: 14px;
+  background: var(--hazard);
+}html[data-ui-theme="cyber"] .hud-rail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}html[data-ui-theme="cyber"] .hud-rail-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-y) 20%, var(--border-y) 80%, transparent);
+  position: relative;
+}html[data-ui-theme="cyber"] .hud-rail-line:first-child::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--yellow);
+  transform: translateY(-50%) rotate(45deg);
+  box-shadow: 0 0 6px var(--yellow-glow);
+}html[data-ui-theme="cyber"] .hud-rail-line:last-child::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--yellow);
+  transform: translateY(-50%) rotate(45deg);
+  box-shadow: 0 0 6px var(--yellow-glow);
+}html[data-ui-theme="cyber"] .hud-rail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border: 1px solid var(--border-y);
+  background: var(--bg-inset);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  white-space: nowrap;
+  box-shadow: inset 0 0 20px rgba(252, 238, 9, 0.04);
+}html[data-ui-theme="cyber"] .hud-rail-chevron {
+  color: var(--fg-muted);
+  font-size: 9px;
+  letter-spacing: -3px;
+  opacity: 0.65;
+}html[data-ui-theme="cyber"] .hud-rail-tag::before { content: "["; margin-inline-end: 2px; opacity: 0.6; }html[data-ui-theme="cyber"] .hud-rail-tag::after { content: "]"; margin-inline-start: 2px; opacity: 0.6; }html[data-ui-theme="cyber"] .hud-divider .card::before { background: var(--cyan); box-shadow: 0 0 12px var(--cyan-glow); }html[data-ui-theme="cyber"] .part-nav {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  margin-bottom: 10px;
+}html[data-ui-theme="cyber"] .part-nav select {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-y-soft);
+  color: var(--fg);
+  cursor: pointer;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--yellow) 50%), linear-gradient(135deg, var(--yellow) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-inline-end: 28px;
+}html[data-ui-theme="cyber"] .part-nav select:focus {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 1px var(--yellow-dim);
+}html[data-ui-theme="cyber"] .part-nav select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}html[data-ui-theme="cyber"] .part-nav .btn-nav {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  font-size: 14px;
+  flex-shrink: 0;
+}/* ── Responsive ── */@media (max-width: 768px){html[data-ui-theme="cyber"] .sys-rail { display: none; }html[data-ui-theme="cyber"] .sys-hazard { width: 60px; }html[data-ui-theme="cyber"] .tabs-nav { flex-direction: column; }html[data-ui-theme="cyber"] .tab-btn { border-left: none; border-top: 1px solid var(--border-y-soft); }html[data-ui-theme="cyber"] .tab-btn:first-child { border-top: none; }html[data-ui-theme="cyber"] .toolbar { flex-direction: column; align-items: stretch; }html[data-ui-theme="cyber"] .control-group { width: 100%; justify-content: space-between; height: 42px; }html[data-ui-theme="cyber"] .vertical-separator, html[data-ui-theme="cyber"] .spacer-div { display: none; }html[data-ui-theme="cyber"] .toolbar .btn { width: 100%; height: 42px; }html[data-ui-theme="cyber"] .extract-switches { flex-direction: column; }html[data-ui-theme="cyber"] .switch-item { flex-direction: row !important; justify-content: space-between; width: 100%; }html[data-ui-theme="cyber"] .dropzone { flex-direction: column; align-items: stretch; }html[data-ui-theme="cyber"] .drop-actions { justify-content: space-between; }html[data-ui-theme="cyber"] .drop-actions .btn { width: 100%; }html[data-ui-theme="cyber"] .morph-switch-grid { grid-template-columns: 1fr; }html[data-ui-theme="cyber"] .metrics { grid-template-columns: 1fr; }}
+html[data-ui-theme="cyber"] .site-footer { display: none !important; }
+</style>
+  <style id="theme-simple">html[data-ui-theme="simple"] {
+      --bg: #000000;
+      --fg: #ffffff;
+      --accents-1: #111111;
+      --accents-2: #333333;
+      --accents-3: #444444;
+      --accents-4: #666666;
+      --accents-5: #888888;
+
+      --border: #333333;
+      --success: #0070f3;
+      --error: #e00;
+      --cyan: #50e3c2;
+      --purple: #7928ca;
+      --gold: #f5a623;
+
+      --font-sans: "Rubik", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      --radius: 8px;
+    }html[data-ui-theme="simple"] * { box-sizing: border-box; outline: none; }html[data-ui-theme="simple"] body {
+      margin: 0;
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      background-image: radial-gradient(var(--accents-2) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }html[data-ui-theme="simple"] ::-webkit-scrollbar { width: 8px; height: 8px; }html[data-ui-theme="simple"] ::-webkit-scrollbar-track { background: var(--bg); }html[data-ui-theme="simple"] ::-webkit-scrollbar-thumb { background: var(--accents-2); border-radius: 4px; }html[data-ui-theme="simple"] .container { max-width: 1200px; margin: 0 auto; padding: 20px; width: 100%; }html[data-ui-theme="simple"] header {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }html[data-ui-theme="simple"] .brand h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(180deg, #fff, #888);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }html[data-ui-theme="simple"] .brand p { color: var(--accents-5); margin: 5px 0 0; font-size: 0.9rem; }html[data-ui-theme="simple"] .tabs-nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      background: var(--accents-1);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }html[data-ui-theme="simple"] .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--accents-5);
+      padding: 12px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }html[data-ui-theme="simple"] .tab-btn:hover { color: var(--fg); background: rgba(255,255,255,0.05); }html[data-ui-theme="simple"] .tab-btn.active {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }html[data-ui-theme="simple"] .tab-content { display: none; animation: fadeIn 0.3s ease; }html[data-ui-theme="simple"] .tab-content.active { display: block; }@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }html[data-ui-theme="simple"] .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }@media (min-width: 900px){html[data-ui-theme="simple"] .grid { grid-template-columns: 1.2fr 0.8fr; }}html[data-ui-theme="simple"] .grid.generator-grid { align-items: stretch; }html[data-ui-theme="simple"] .grid.generator-grid > .card { min-height: 400px; }html[data-ui-theme="simple"] .card {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+    }html[data-ui-theme="simple"] .card-config .config-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }html[data-ui-theme="simple"] .config-hint {
+      font-size: 11px;
+      color: var(--accents-5);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }html[data-ui-theme="simple"] #config {
+      flex: 1;
+      min-height: 220px;
+      resize: none;
+      border-color: rgba(0, 112, 243, 0.35);
+      background: rgba(0, 112, 243, 0.05);
+      line-height: 1.55;
+      word-break: break-all;
+    }html[data-ui-theme="simple"] #config:focus { border-color: var(--success); box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.12); }html[data-ui-theme="simple"] .ip-subtabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: var(--accents-1);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }html[data-ui-theme="simple"] .ip-subtab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--accents-5);
+      padding: 8px 10px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.2s;
+    }html[data-ui-theme="simple"] .ip-subtab:hover { color: var(--fg); }html[data-ui-theme="simple"] .ip-subtab.active {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    }html[data-ui-theme="simple"] .ip-panel { display: none; flex: 1; flex-direction: column; min-height: 0; }html[data-ui-theme="simple"] .ip-panel.active { display: flex; }html[data-ui-theme="simple"] #ips, html[data-ui-theme="simple"] #ipRanges {
+      flex: 1;
+      min-height: 140px;
+      resize: vertical;
+    }html[data-ui-theme="simple"] .cdn-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }html[data-ui-theme="simple"] .btn-cdn {
+      flex: 1;
+      min-width: 90px;
+      height: 34px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: var(--radius);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--accents-1);
+      color: var(--accents-5);
+      font-family: var(--font-sans);
+      transition: all 0.2s;
+    }html[data-ui-theme="simple"] .btn-cdn:hover { color: var(--fg); border-color: var(--accents-4); }html[data-ui-theme="simple"] .btn-cdn.cf:hover { border-color: #f38020; color: #f38020; }html[data-ui-theme="simple"] .btn-cdn.fastly:hover { border-color: #ff0200; color: #ff0200; }html[data-ui-theme="simple"] .btn-cdn.gcore:hover { border-color: #ff5722; color: #ff5722; }html[data-ui-theme="simple"] .btn-shuffle {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: rgba(121, 40, 202, 0.08);
+    }html[data-ui-theme="simple"] .btn-shuffle:hover { background: var(--purple); color: #fff; }html[data-ui-theme="simple"] .range-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 10px;
+    }html[data-ui-theme="simple"] .range-actions .btn-shuffle { width: 100%; }html[data-ui-theme="simple"] .cdn-output-row { margin-bottom: 10px; }html[data-ui-theme="simple"] .cdn-output-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }html[data-ui-theme="simple"] .cdn-output-head label {
+      margin: 0;
+      font-size: 12px;
+      color: var(--accents-5);
+      white-space: nowrap;
+    }html[data-ui-theme="simple"] .cdn-output-num {
+      width: 96px;
+      padding: 6px 8px;
+      font-size: 13px;
+      text-align: center;
+      font-family: var(--font-mono);
+    }html[data-ui-theme="simple"] .cdn-output-row input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: var(--accents-2);
+      border: none;
+      padding: 0;
+      border-radius: 3px;
+      cursor: pointer;
+    }html[data-ui-theme="simple"] .cdn-output-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(0, 112, 243, 0.45);
+      cursor: pointer;
+    }html[data-ui-theme="simple"] .cdn-output-row input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--success);
+      border: none;
+      box-shadow: 0 0 8px rgba(0, 112, 243, 0.45);
+      cursor: pointer;
+    }html[data-ui-theme="simple"] .range-hint {
+      font-size: 11px;
+      color: var(--accents-5);
+      margin-bottom: 8px;
+      line-height: 1.45;
+    }html[data-ui-theme="simple"] .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }html[data-ui-theme="simple"] .card-title { font-weight: 700; display: flex; align-items: center; gap: 8px; }html[data-ui-theme="simple"] .tag { font-size: 10px; padding: 3px 6px; border-radius: 4px; background: var(--accents-2); color: var(--accents-5); }html[data-ui-theme="simple"] label { display: block; color: var(--accents-5); font-size: 13px; margin-bottom: 8px; }html[data-ui-theme="simple"] textarea, html[data-ui-theme="simple"] input, html[data-ui-theme="simple"] select {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--border);
+      color: var(--fg);
+      border-radius: var(--radius);
+      padding: 12px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+    }html[data-ui-theme="simple"] textarea:focus, html[data-ui-theme="simple"] input:focus { border-color: var(--fg); }html[data-ui-theme="simple"] .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }html[data-ui-theme="simple"] .metric {
+      background: var(--accents-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 5px;
+      text-align: center;
+    }html[data-ui-theme="simple"] .metric-val { font-size: 1.4rem; font-weight: 800; color: var(--fg); }html[data-ui-theme="simple"] .metric-lbl { font-size: 0.7rem; color: var(--accents-5); margin-top: 4px; }html[data-ui-theme="simple"] .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px;
+      background: var(--accents-1); padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+    }html[data-ui-theme="simple"] .control-group {
+      display: flex; align-items: center; gap: 8px; background: var(--bg);
+      padding: 4px 8px; border-radius: var(--radius); border: 1px solid var(--border);
+    }html[data-ui-theme="simple"] .input-mini { width: 70px; padding: 6px; text-align: center; background: transparent; border: none; }html[data-ui-theme="simple"] .vertical-separator { width: 1px; height: 24px; background: var(--border); margin: 0 5px; }html[data-ui-theme="simple"] .spacer-div { flex-grow: 1; }@media (max-width: 768px){html[data-ui-theme="simple"] .toolbar { flex-direction: column; align-items: stretch; padding: 15px; gap: 10px; }html[data-ui-theme="simple"] .control-group { width: 100%; justify-content: space-between; height: 45px; }html[data-ui-theme="simple"] .vertical-separator, html[data-ui-theme="simple"] .spacer-div { display: none; }html[data-ui-theme="simple"] .toolbar .btn { width: 100%; height: 45px; justify-content: center; }}html[data-ui-theme="simple"] .btn {
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      padding: 0 12px; height: 38px; border-radius: var(--radius); font-weight: 600; font-size: 13px;
+      transition: all 0.2s; border: 1px solid transparent; font-family: var(--font-sans); gap: 6px; white-space: nowrap;
+    }html[data-ui-theme="simple"] .btn-secondary { background: var(--accents-1); color: var(--accents-5); border: 1px solid var(--border); }html[data-ui-theme="simple"] .btn-secondary:hover { color: var(--fg); border-color: var(--accents-5); }html[data-ui-theme="simple"] .btn-blue { background: var(--success); color: white; box-shadow: 0 0 10px rgba(0,112,243,0.3); }html[data-ui-theme="simple"] .btn-purple { background: transparent; color: var(--purple); border: 1px solid var(--purple); }html[data-ui-theme="simple"] .btn-purple:hover { background: var(--purple); color: white; }html[data-ui-theme="simple"] .btn-gold { background: transparent; color: var(--gold); border: 1px solid var(--gold); }html[data-ui-theme="simple"] .btn-gold:hover { background: var(--gold); color: black; }html[data-ui-theme="simple"] .btn-danger { color: var(--error); background: rgba(255,0,0,0.05); border-color: rgba(255,0,0,0.2); }html[data-ui-theme="simple"] .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accents-3); display: inline-block; margin-left: 5px; }html[data-ui-theme="simple"] .status-dot.ok { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }html[data-ui-theme="simple"] .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }html[data-ui-theme="simple"] .toast { font-size: 13px; color: var(--cyan); opacity: 0; transition: all 0.3s; }html[data-ui-theme="simple"] .toast.visible { opacity: 1; }html[data-ui-theme="simple"] #out { border-color: var(--success); background: rgba(0,112,243,0.05); min-height: 200px; }html[data-ui-theme="simple"] #extOut { border-color: var(--purple); background: rgba(121, 40, 202, 0.05); min-height: 200px; }html[data-ui-theme="simple"] #extDiff { border-color: var(--gold); background: rgba(245, 166, 35, 0.05); min-height: 120px; }html[data-ui-theme="simple"] .dropzone {
+      margin-top: 12px; border: 1px dashed var(--accents-4); border-radius: 12px; padding: 14px;
+      background: rgba(255,255,255,0.02); display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; transition: 0.2s; user-select: none;
+    }html[data-ui-theme="simple"] .dropzone strong { font-size: 13px; }html[data-ui-theme="simple"] .dropzone small { color: var(--accents-5); display:block; margin-top:4px; font-size:12px; line-height: 1.4; }html[data-ui-theme="simple"] .dropzone.dragover { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(80,227,194,0.12); }html[data-ui-theme="simple"] .drop-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }html[data-ui-theme="simple"] .toggle {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--accents-5);
+      background: var(--bg); border: 1px solid var(--border); padding: 6px 10px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    }html[data-ui-theme="simple"] .toggle input { accent-color: var(--cyan); }html[data-ui-theme="simple"] #ipFile { display:none; }html[data-ui-theme="simple"] .extract-switches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      justify-content: center;
+    }html[data-ui-theme="simple"] .extract-filter {
+      margin-bottom: 10px;
+    }html[data-ui-theme="simple"] .extract-filter .switch-item {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      border-color: rgba(121, 40, 202, 0.25);
+    }html[data-ui-theme="simple"] .extract-filter .switch-item:has(input:checked) {
+      border-color: rgba(121, 40, 202, 0.55);
+      background: rgba(121, 40, 202, 0.08);
+    }html[data-ui-theme="simple"] .extract-filter .switch-item:has(input:checked) .switch-label { color: var(--purple); }html[data-ui-theme="simple"] .extract-filter .switch input:checked + .switch-slider {
+      background: var(--purple);
+      box-shadow: 0 0 10px rgba(121, 40, 202, 0.35);
+    }html[data-ui-theme="simple"] .ext-cidr-switch { margin-top: 12px; margin-bottom: 0; }html[data-ui-theme="simple"] .ext-cidr-switch .switch-item {
+      border-color: rgba(245, 166, 35, 0.3);
+    }html[data-ui-theme="simple"] .ext-cidr-switch .switch-item:has(input:checked) {
+      border-color: rgba(245, 166, 35, 0.55);
+      background: rgba(245, 166, 35, 0.08);
+    }html[data-ui-theme="simple"] .ext-cidr-switch .switch-item:has(input:checked) .switch-label { color: var(--gold); }html[data-ui-theme="simple"] .ext-cidr-switch .switch input:checked + .switch-slider {
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(245, 166, 35, 0.35);
+    }html[data-ui-theme="simple"] .switch-item {
+      flex: 1;
+      min-width: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--accents-1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color 0.2s, background 0.2s;
+    }html[data-ui-theme="simple"] .switch-item:hover { border-color: var(--accents-4); }html[data-ui-theme="simple"] .switch-item:has(input:checked) {
+      border-color: rgba(80, 227, 194, 0.35);
+      background: rgba(80, 227, 194, 0.06);
+    }html[data-ui-theme="simple"] .switch-item .switch-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accents-5);
+      transition: color 0.2s;
+    }html[data-ui-theme="simple"] .switch-item:has(input:checked) .switch-label { color: var(--cyan); }html[data-ui-theme="simple"] .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }html[data-ui-theme="simple"] .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }html[data-ui-theme="simple"] .switch-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--accents-3);
+      border-radius: 999px;
+      transition: background 0.25s;
+      cursor: pointer;
+    }html[data-ui-theme="simple"] .switch-slider::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: var(--fg);
+      border-radius: 50%;
+      transition: transform 0.25s, background 0.25s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }html[data-ui-theme="simple"] .switch input:checked + .switch-slider {
+      background: var(--cyan);
+      box-shadow: 0 0 10px rgba(80, 227, 194, 0.35);
+    }html[data-ui-theme="simple"] .switch input:checked + .switch-slider::before {
+      transform: translateX(20px);
+      background: #000;
+    }html[data-ui-theme="simple"] .switch input:focus-visible + .switch-slider {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }@media (max-width: 768px){html[data-ui-theme="simple"] .extract-switches { flex-direction: column; }html[data-ui-theme="simple"] .switch-item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }}@media (max-width: 768px){html[data-ui-theme="simple"] .dropzone { flex-direction: column; align-items: stretch; }html[data-ui-theme="simple"] .drop-actions { justify-content: space-between; }html[data-ui-theme="simple"] .drop-actions .btn { width: 100%; }html[data-ui-theme="simple"] .toggle { justify-content: space-between; }}/* Info box for SNI tab */html[data-ui-theme="simple"] .info-box {
+      background: rgba(80, 227, 194, 0.05);
+      border: 1px solid rgba(80, 227, 194, 0.2);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--accents-5);
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }html[data-ui-theme="simple"] #btnExtract { white-space: normal; line-height: 1.4; min-height: 38px; height: auto; padding: 10px 12px; }html[data-ui-theme="simple"] .info-box strong { color: var(--cyan); }html[data-ui-theme="simple"] .spoof-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 15px;
+    }html[data-ui-theme="simple"] .spoof-field label {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }html[data-ui-theme="simple"] .spoof-field input {
+      font-family: var(--font-mono);
+    }html[data-ui-theme="simple"] #spoofOutput {
+      border-color: rgba(80, 227, 194, 0.35);
+      background: rgba(80, 227, 194, 0.05);
+    }html[data-ui-theme="simple"] .sni-host-switch { margin-bottom: 15px; }html[data-ui-theme="simple"] .sni-host-switch .switch-item {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      padding: 12px 14px;
+    }html[data-ui-theme="simple"] .sni-host-switch .switch-label code {
+      color: var(--cyan);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }html[data-ui-theme="simple"] .morph-spoof-bar {
+      margin-bottom: 14px;
+    }html[data-ui-theme="simple"] .morph-spoof-bar .switch-item {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 16px;
+      border-color: rgba(121, 40, 202, 0.35);
+    }html[data-ui-theme="simple"] .morph-spoof-bar .switch-item:has(input:checked) {
+      border-color: rgba(121, 40, 202, 0.65);
+      background: rgba(121, 40, 202, 0.1);
+    }html[data-ui-theme="simple"] .morph-spoof-bar .switch-item:has(input:checked) .switch-label { color: var(--purple); }html[data-ui-theme="simple"] .morph-spoof-bar .switch-label small {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--accents-5);
+      margin-top: 3px;
+    }html[data-ui-theme="simple"] .morph-spoof-bar .switch input:checked + .switch-slider {
+      background: var(--purple);
+      box-shadow: 0 0 10px rgba(121, 40, 202, 0.35);
+    }html[data-ui-theme="simple"] .morph-switch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }@media (max-width: 600px){html[data-ui-theme="simple"] .morph-switch-grid { grid-template-columns: 1fr; }}html[data-ui-theme="simple"] .morph-panel { display: none; }html[data-ui-theme="simple"] .morph-panel.active { display: block; }html[data-ui-theme="simple"] #morphOutput {
+      border-color: rgba(121, 40, 202, 0.35);
+      background: rgba(121, 40, 202, 0.05);
+    }@media (max-width: 768px){html[data-ui-theme="simple"] .tabs-nav { flex-wrap: wrap; }html[data-ui-theme="simple"] .tab-btn { flex: 1 1 45%; font-size: 12px; padding: 10px 6px; }}/* ── Extensions (current feature set) ── */html[data-ui-theme="simple"][lang="fa"] { --font-sans: "Estedad", "Vazirmatn", system-ui, sans-serif; }html[data-ui-theme="simple"] .brand-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }html[data-ui-theme="simple"] .brand-kicker { font-size: 0.75rem; color: var(--accents-5); margin: 0; }html[data-ui-theme="simple"] .brand h1 em { font-style: normal; color: var(--success); }html[data-ui-theme="simple"] .lang-switch, html[data-ui-theme="simple"] .theme-switch { display: flex; gap: 4px; background: var(--accents-1); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; }html[data-ui-theme="simple"] .lang-btn, html[data-ui-theme="simple"] .theme-btn {
+  background: transparent; border: none; color: var(--accents-5);
+  font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px;
+  cursor: pointer; text-decoration: none; font-family: var(--font-mono);
+}html[data-ui-theme="simple"] .lang-btn:hover, html[data-ui-theme="simple"] .theme-btn:hover { color: var(--fg); background: rgba(255,255,255,0.05); }html[data-ui-theme="simple"] .lang-btn.active, html[data-ui-theme="simple"] .theme-btn.active { background: var(--bg); color: var(--fg); border: 1px solid var(--border); }html[data-ui-theme="simple"] .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }html[data-ui-theme="simple"] .panel-serial { display: none; }html[data-ui-theme="simple"] .card { padding: 20px; }html[data-ui-theme="simple"] .card-head { border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; }html[data-ui-theme="simple"] .card-title::before { content: none; }html[data-ui-theme="simple"] .tag::before, html[data-ui-theme="simple"] .tag::after { content: none; }html[data-ui-theme="simple"] .tab-id { display: none; }html[data-ui-theme="simple"] .tab-btn { display: flex; align-items: center; justify-content: center; gap: 6px; }html[data-ui-theme="simple"] .area-xs { height: 90px; min-height: 90px; resize: vertical; margin-bottom: 12px; }html[data-ui-theme="simple"] .area-sm { height: 140px; min-height: 140px; resize: vertical; }html[data-ui-theme="simple"] .area-md { height: 180px; min-height: 180px; resize: vertical; }html[data-ui-theme="simple"] .area-lg { height: 250px; min-height: 250px; resize: vertical; }html[data-ui-theme="simple"] .area-xl { height: 280px; min-height: 280px; resize: vertical; }html[data-ui-theme="simple"] .area-fill { flex: 1; min-height: 220px; height: 220px; resize: none; }html[data-ui-theme="simple"] .card textarea, html[data-ui-theme="simple"] .card select, html[data-ui-theme="simple"] .card input:not([type="checkbox"]):not([type="range"]):not(.input-mini):not(.cdn-output-num) {
+  width: 100%; max-width: 100%; box-sizing: border-box;
+}html[data-ui-theme="simple"] .card input.input-mini { width: 50px; flex-shrink: 0; }html[data-ui-theme="simple"] input[type="number"] { -moz-appearance: textfield; appearance: textfield; }html[data-ui-theme="simple"] input[type="number"]::-webkit-outer-spin-button, html[data-ui-theme="simple"] input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }html[data-ui-theme="simple"] .input-mini {
+  width: 50px; height: 26px; padding: 0; text-indent: 11px; text-align: start;
+  background: var(--accents-1); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--fg); font-size: 12px;
+}html[data-ui-theme="simple"] .control-group { height: 36px; padding: 0 10px; }html[data-ui-theme="simple"] .control-group label { margin: 0; font-size: 11px; white-space: nowrap; }html[data-ui-theme="simple"] .toggle { height: 36px; padding: 0 12px; border-radius: var(--radius); }html[data-ui-theme="simple"] .drop-actions { align-items: center; gap: 6px; }html[data-ui-theme="simple"] .drop-actions .btn, html[data-ui-theme="simple"] .drop-actions .toggle { height: 36px; }html[data-ui-theme="simple"] .btn-block { width: 100%; }html[data-ui-theme="simple"] .btn-flex { flex: 1; }html[data-ui-theme="simple"] .btn-morph { margin-bottom: 15px; }html[data-ui-theme="simple"] .toolbar-block { margin-top: 10px; margin-bottom: 0; }html[data-ui-theme="simple"] .btn-nav { min-width: 36px; width: 36px; height: 36px; padding: 0; }html[data-ui-theme="simple"] .ico { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.85; }html[data-ui-theme="simple"] .part-nav { display: flex; gap: 6px; margin-bottom: 10px; align-items: stretch; }html[data-ui-theme="simple"] .part-nav select { flex: 1; height: 36px; padding: 0 12px; border-radius: var(--radius); }html[data-ui-theme="simple"] .part-info { font-size: 11px; color: var(--accents-5); font-family: var(--font-mono); }html[data-ui-theme="simple"] .hud-divider { margin-top: 24px; }html[data-ui-theme="simple"] .hud-divider::before {
+  content: ""; display: block; height: 4px; margin-bottom: 14px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}html[data-ui-theme="simple"] .hud-rail { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }html[data-ui-theme="simple"] .hud-rail-line { flex: 1; height: 1px; background: var(--border); }html[data-ui-theme="simple"] .hud-rail-badge {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accents-5); padding: 4px 12px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--accents-1);
+}html[data-ui-theme="simple"] .hud-rail-chevron { display: none; }html[data-ui-theme="simple"] .hud-rail-tag::before, html[data-ui-theme="simple"] .hud-rail-tag::after { content: none; }html[data-ui-theme="simple"] .card-stack { margin-top: 20px; }html[data-ui-theme="simple"] .metric-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 1.35rem; }/* Toast — simple bottom bar */html[data-ui-theme="simple"] .toast-host {
+  position: fixed; inset-inline: 0; bottom: 16px; z-index: 10001;
+  display: flex; justify-content: center; padding: 0 16px; pointer-events: none;
+}html[data-ui-theme="simple"] .toast {
+  pointer-events: auto; display: flex; align-items: center; gap: 10px;
+  width: min(480px, 100%); min-height: 44px; padding: 10px 14px;
+  background: rgba(10,10,10,0.95); border: 1px solid var(--border);
+  border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg);
+  opacity: 0; transform: translateY(calc(100% + 20px));
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s;
+}html[data-ui-theme="simple"] .toast.visible { opacity: 1; transform: translateY(0); }html[data-ui-theme="simple"] .toast-accent, html[data-ui-theme="simple"] .toast-tag { display: none; }html[data-ui-theme="simple"] .toast-icon {
+  width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0;
+}html[data-ui-theme="simple"] .toast--success .toast-icon { background: var(--cyan); color: #000; }html[data-ui-theme="simple"] .toast--warn .toast-icon { background: var(--gold); color: #000; }html[data-ui-theme="simple"] .toast--error .toast-icon { background: var(--error); color: #fff; }html[data-ui-theme="simple"] .toast--info .toast-icon { background: var(--success); color: #fff; }html[data-ui-theme="simple"] .toast-text { flex: 1; line-height: 1.45; }html[data-ui-theme="simple"] .site-footer {
+  margin-top: 32px; padding: 14px 20px; border-top: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px; color: var(--accents-5);
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+}/* Hide cyber-only chrome in simple theme */html[data-ui-theme="simple"] .sys-top, html[data-ui-theme="simple"] .sys-rail, html[data-ui-theme="simple"] .sys-footer, html[data-ui-theme="simple"] .app-shell > .sys-rail { display: none !important; }html[data-ui-theme="simple"] .app-shell { display: block; }
+html[data-ui-theme="simple"] .sys-top,
+html[data-ui-theme="simple"] .sys-rail,
+html[data-ui-theme="simple"] .sys-footer { display: none !important; }
+html[data-ui-theme="simple"] .app-shell { display: block; }
+html[data-ui-theme="simple"] .app-shell.simple-layout { display: block; }
+</style>
+</head>
+
+<body>
+  <div class="sys-top">
+    <div class="sys-top-inner">
+      <span class="sys-binary">01110100 01101111 01101111 01101100 01110011 00101110 01110011 01111001 01110011 00101110 01110011 01100101 01100011 01110101 01110010 01100101 00101110 01101100 01101111 01100011 01101011 01100101 01100100 00101110 01101111 01101110 00101110 01101111 01101110 01101100 01101001 01101110 01100101 00101110 01110100 01110010 01110101 01100101 00101110 01100001 01100011 01110100 01101001 01110110 01100101</span>
+      <span class="sys-top-tag"><strong>NET STAT</strong> :: 01100001 01100011 01110100 01101001 01110110 01100101</span>
+    </div>
+    <div class="sys-hazard" aria-hidden="true"></div>
+  </div>
+
+  <div class="app-shell">
+    <aside class="sys-rail" aria-hidden="true"><span>SYS VER 2.0 :: VLESS-6326-A44 :: SECURE</span></aside>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+                <div class="brand-top">
+          <div class="brand-kicker" data-i18n="brand.kicker">/// SECURE CONFIG INTERFACE</div>
+          <div class="header-actions">
+            <div class="lang-switch" role="group" aria-label="Language">
+              <button type="button" class="lang-btn" data-lang="fa">FA</button>
+              <button type="button" class="lang-btn active" data-lang="en">EN</button>
+              <button type="button" class="lang-btn" data-lang="ru">RU</button>
+            </div>
+            <div class="theme-switch" role="group" aria-label="UI theme">
+              <button type="button" class="theme-btn" data-ui-theme="simple" data-i18n="theme.simple">Simple</button>
+              <button type="button" class="theme-btn active" data-ui-theme="cyber" data-i18n="theme.cyber">Cyber</button>
+            </div>
+          </div>
+        </div>
+<h1><em>VLESS</em> TOOLS</h1>
+        <p data-i18n-html="brand.subtitle">Config toolkit · PROTOCOL <code>6326-A44</code></p>
+      </div>
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('generator')"><span class="tab-id">01</span><span class="tab-label" data-i18n="tab.generator">Config Builder</span></button>
+        <button class="tab-btn" onclick="switchTab('extractor')"><span class="tab-id">02</span><span class="tab-label" data-i18n="tab.extractor">IP Extractor</span></button>
+        <button class="tab-btn" onclick="switchTab('morph')"><span class="tab-id">03</span><span class="tab-label" data-i18n="tab.morph">Config Morph</span></button>
+      </div>
+    </header>
+
+    <main>
+      <!-- TAB 1: GENERATOR -->
+      <div id="tab-generator" class="tab-content active">
+        <div class="grid generator-grid">
+          <section class="card card-config">
+            <span class="panel-serial">TD-0001</span>
+            <div class="card-head">
+              <div class="card-title"><span id="statusIndicator" class="status-dot"></span><span data-i18n="gen.configTitle">1. Base config</span></div>
+              <span class="tag" data-i18n="tag.required">Required</span>
+            </div>
+            <div class="config-body">
+              <p class="config-hint" data-i18n-html="gen.configHint">Paste a VLESS link — <code>@host:</code> is replaced with entered IPs or ranges.</p>
+              <textarea id="config" class="area-fill" data-i18n-placeholder="ph.config" placeholder="vless://UUID@domain.com:443?security=tls&type=ws&sni=..."></textarea>
+            </div>
+          </section>
+  
+          <section class="card">
+            <span class="panel-serial">TD-0002</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="gen.ipsTitle">2. IPs</div>
+              <span class="tag" id="ipSourceTag" data-i18n="tag.listCidr">List / CIDR</span>
+            </div>
+
+            <div class="ip-subtabs">
+              <button type="button" class="ip-subtab active" data-ip-tab="list" data-i18n="gen.ipList">IP list</button>
+              <button type="button" class="ip-subtab" data-ip-tab="range" data-i18n="gen.ipRange">IP ranges</button>
+            </div>
+
+            <div id="ip-panel-list" class="ip-panel active">
+              <textarea id="ips" class="area-md" data-i18n-placeholder="ph.ips" placeholder="One IP or CIDR per line"></textarea>
+              <div id="dropzone" class="dropzone" data-i18n-title="gen.dropTitle">
+                <div class="dropzone-text">
+                  <strong><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1L3 6h3v6h4V6h3L8 1zm-6 12v2h12v-2H2z"/></svg> <span data-i18n="gen.dropTitle">Import file or Drag &amp; Drop</span></strong>
+                  <small data-i18n="gen.dropHint">txt / csv / log — single IP or CIDR</small>
+                </div>
+                <div class="drop-actions">
+                  <label class="toggle" data-i18n-title="gen.appendTitle">
+                    <input type="checkbox" id="appendMode" checked>
+                    <span data-i18n="gen.appendMode">Append to list</span>
+                  </label>
+                  <input id="ipFile" type="file" accept=".txt,.csv,.log,.json,text/plain">
+                  <button type="button" id="pickFile" class="btn btn-secondary" data-i18n="gen.pickFile">Pick file</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="ip-panel-range" class="ip-panel">
+              <p class="range-hint" data-i18n="gen.rangeHint">One CIDR per line. Large CDN ranges auto-sample as /24.</p>
+              <div class="cdn-toolbar">
+                <button type="button" class="btn-cdn cf" data-cdn="cloudflare">Cloudflare</button>
+                <button type="button" class="btn-cdn fastly" data-cdn="fastly">Fastly</button>
+                <button type="button" class="btn-cdn gcore" data-cdn="gcore">Gcore</button>
+              </div>
+              <div class="range-actions">
+                <button type="button" class="btn-cdn btn-shuffle" id="btnShuffleRanges">SHUFFLE</button>
+              </div>
+              <div class="cdn-output-row">
+                <div class="cdn-output-head">
+                  <label for="cdnOutputCountNum" data-i18n="gen.cdnCount">Ranges in box:</label>
+                  <input type="number" id="cdnOutputCountNum" class="cdn-output-num" min="0" max="50000" value="1">
+                </div>
+                <input type="range" id="cdnOutputCount" min="0" max="50000" step="1" value="1">
+              </div>
+              <textarea id="ipRanges" class="area-md" data-i18n-placeholder="ph.ranges" placeholder="8.20.101.0/24"></textarea>
+            </div>
+  
+            <div class="metrics">
+              <div class="metric"><div class="metric-val" id="ipCount">0</div><div class="metric-lbl" data-i18n="gen.metricIp">IPs (expanded)</div></div>
+              <div class="metric"><div class="metric-val" id="cfgCount">0</div><div class="metric-lbl" data-i18n="gen.metricCfg">Output configs</div></div>
+              <div class="metric"><div class="metric-val" id="partCount">0</div><div class="metric-lbl" data-i18n="gen.metricPart">Parts</div></div>
+            </div>
+          </section>
+        </div>
+  
+        <div class="hud-divider">
+          <div class="hud-rail" aria-hidden="true">
+            <span class="hud-rail-line"></span>
+            <span class="hud-rail-badge">
+              <span class="hud-rail-chevron">››</span>
+              <span class="hud-rail-tag" data-i18n="tag.output">Output</span>
+              <span class="hud-rail-chevron">‹‹</span>
+            </span>
+            <span class="hud-rail-line"></span>
+          </div>
+          <div class="card">
+            <span class="panel-serial">OUT-0003</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="gen.outputTitle">3. Config output</div>
+              <span class="tag">OUTPUT</span>
+            </div>
+            <div class="toolbar">
+              <div class="control-group" data-i18n-title="gen.perPartTitle">
+                <label for="perPart" data-i18n="gen.perPart">Configs per part:</label>
+                <input id="perPart" type="number" value="20" min="1" class="input-mini">
+              </div>
+              <button id="btnOnePart" class="btn btn-purple" data-i18n-title="gen.onePartTitle"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 3h5v2H9v-2z"/></svg> <span data-i18n="gen.onePart">Single part</span></button>
+              <div class="vertical-separator"></div>
+              <button id="build" class="btn btn-blue" data-i18n-title="gen.buildTitle"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 2l6 6-6 6V2z"/></svg> <span data-i18n="gen.build">Generate</span></button>
+              <button id="copyPart" class="btn btn-secondary"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="gen.copyPart">Copy part</span></button>
+              <button id="copyAll" class="btn btn-secondary"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="gen.copyAll">Copy all</span></button>
+              <div class="vertical-separator"></div>
+              <button id="dlPart" class="btn btn-gold" data-i18n="gen.dlPart">DL part</button>
+              <button id="dlAll" class="btn btn-gold" data-i18n="gen.dlAll">DL all</button>
+              <div class="spacer-div"></div>
+              <button id="clear" class="btn btn-danger" data-i18n="gen.clear">Clear</button>
+            </div>
+  
+            <div class="part-nav">
+              <button id="prev" class="btn btn-secondary btn-nav" disabled data-i18n-aria="gen.partPrev" aria-label="Previous part">◂</button>
+              <select id="partSelect" disabled><option data-i18n="gen.noOutput">No output yet</option></select>
+              <button id="next" class="btn btn-secondary btn-nav" disabled data-i18n-aria="gen.partNext" aria-label="Next part">▸</button>
+            </div>
+  
+            <textarea id="out" class="area-lg" readonly data-i18n-placeholder="ph.out" placeholder="Output appears here..."></textarea>
+  
+            <div class="action-bar">
+              <div id="partInfo" class="part-info">---</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: EXTRACTOR -->
+      <div id="tab-extractor" class="tab-content">
+        <div class="grid">
+          <section class="card">
+            <span class="panel-serial">EXT-0001</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="ext.inputTitle">1. Config list</div>
+              <span class="tag" data-i18n="tag.input">Input</span>
+            </div>
+            <textarea id="extInput" class="area-lg" data-i18n-placeholder="ph.extInput" placeholder="VLESS configs or IP/CIDR, one per line"></textarea>
+            <div id="extCidrSwitchWrap" class="extract-filter ext-cidr-switch" style="display:none;">
+              <label class="switch-item" data-i18n-title="ext.expandTitle">
+                <span class="switch-label" data-i18n="ext.expandCidr">Expand CIDR to IP list</span>
+                <span class="switch">
+                  <input type="checkbox" id="extExpandCidr">
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+            </div>
+            <div class="metrics">
+              <div class="metric"><div class="metric-val" id="extInCount">0</div><div class="metric-lbl" data-i18n="ext.inLines">Input lines</div></div>
+              <div class="metric"><div class="metric-val" id="extFilterCount">—</div><div class="metric-lbl" data-i18n="ext.filterWs">WS+TLS pass</div></div>
+              <div class="metric"><div class="metric-val" id="extOutCount">0</div><div class="metric-lbl" data-i18n="ext.result">Extract result</div></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <span class="panel-serial">EXT-0002</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="ext.outputTitle">2. Extraction output</div>
+              <span class="tag" data-i18n="tag.output">Output</span>
+            </div>
+            <div class="toolbar toolbar-block">
+              <button id="btnExtract" class="btn btn-purple btn-block"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 2h4l4 4v8H2V2h4zm0 1v3h3V3H6zm-2 9h8V7H4v7zm2-5h1v3H6V7zm2 0h3v3H8V7z"/></svg> <span id="btnExtractLabel" data-i18n="ext.extract">Extract IPs</span></button>
+            </div>
+            <div class="extract-filter">
+              <label class="switch-item" data-i18n-title="ext.wsTlsTitle">
+                <span class="switch-label" data-i18n="ext.wsTls">WS + TLS only</span>
+                <span class="switch">
+                  <input type="checkbox" id="extWsTls">
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+            </div>
+            <div class="extract-switches">
+              <label class="switch-item" data-i18n-title="ext.addrsTitle">
+                <span class="switch-label" data-i18n="ext.addrs">Addresses</span>
+                <span class="switch">
+                  <input type="checkbox" id="extAddr" checked>
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+              <label class="switch-item" data-i18n-title="ext.sniTitle">
+                <span class="switch-label">SNI</span>
+                <span class="switch">
+                  <input type="checkbox" id="extSni">
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+              <label class="switch-item" data-i18n-title="ext.hostTitle">
+                <span class="switch-label">HOST</span>
+                <span class="switch">
+                  <input type="checkbox" id="extHost">
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+            </div>
+            <textarea id="extOut" class="area-md" readonly data-i18n-placeholder="ph.extOut" placeholder="Results appear here..."></textarea>
+            <div class="toolbar toolbar-block">
+              <button id="extCopy" class="btn btn-secondary btn-flex"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="ext.copyOut">Copy output</span></button>
+              <button id="extClear" class="btn btn-danger" data-i18n="gen.clear">Clear</button>
+            </div>
+          </section>
+        </div>
+
+        <div class="card-stack">
+          <section class="card">
+            <span class="panel-serial">EXT-0003</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="ext.dupTitle">3. Duplicate IPs</div>
+              <span class="tag" data-i18n="tag.duplicate">Duplicates</span>
+            </div>
+            <textarea id="extDiff" class="area-sm" readonly data-i18n-placeholder="ph.extDiff" placeholder="Duplicate IPs between input lines..."></textarea>
+            <div class="metrics">
+              <div class="metric"><div class="metric-val" id="extDiffCount">0</div><div class="metric-lbl" data-i18n="ext.dupCount">Duplicates</div></div>
+              <div class="metric"><div class="metric-val" id="extDiffUnique">0</div><div class="metric-lbl" data-i18n="ext.dupUnique">Unique dupes</div></div>
+              <div class="metric"><div class="metric-val" id="extDiffGap">0</div><div class="metric-lbl" data-i18n="ext.dupGap">Gap (in − out)</div></div>
+            </div>
+            <div class="toolbar toolbar-block">
+              <button id="extDiffCopy" class="btn btn-secondary btn-flex"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="ext.copyDup">Copy duplicates</span></button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- TAB 3: MORPH CONFIG (SNI + Spoof unified) -->
+      <div id="tab-morph" class="tab-content">
+        <div class="grid">
+          <section class="card">
+            <span class="panel-serial">MRP-0001</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="morph.inputTitle">1. Input configs</div>
+              <span class="tag">VLESS List</span>
+            </div>
+            <textarea id="morphInput" class="area-xl" data-i18n-placeholder="ph.morphInput" placeholder="One VLESS config per line..."></textarea>
+            <div class="metrics">
+              <div class="metric">
+                <div class="metric-val" id="morphInCount">0</div>
+                <div class="metric-lbl" data-i18n="morph.inCount">Input count</div>
+              </div>
+              <div class="metric">
+                <div class="metric-val" id="morphOutCount">0</div>
+                <div class="metric-lbl" data-i18n="morph.outCount">Output count</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <span class="panel-serial">MRP-0002</span>
+            <div class="card-head">
+              <div class="card-title" data-i18n="morph.settingsTitle">2. Morph settings</div>
+              <span class="tag" data-i18n="tag.transform">Transform</span>
+            </div>
+
+            <div class="morph-spoof-bar">
+              <label class="switch-item" data-i18n-title="morph.spoofTitle">
+                <span class="switch-label">
+                  SNI Spoof
+                  <small data-i18n="morph.spoofHint">Local proxy — SNI &amp; host unchanged</small>
+                </span>
+                <span class="switch">
+                  <input type="checkbox" id="morphSpoofMode">
+                  <span class="switch-slider"></span>
+                </span>
+              </label>
+            </div>
+
+            <div id="morphSpoofPanel" class="morph-panel">
+              <div class="info-box" data-i18n-html="morph.spoofInfo">Only <strong>Address</strong> changes. <strong>SNI</strong>, <strong>HOST</strong> and config name are kept.</div>
+              <div class="spoof-fields">
+                <div class="spoof-field">
+                  <label for="morphSpoofIp" data-i18n="morph.addr">Address</label>
+                  <input id="morphSpoofIp" type="text" value="127.0.0.1" placeholder="127.0.0.1">
+                </div>
+                <div class="spoof-field">
+                  <label for="morphSpoofPort" data-i18n="morph.port">Port</label>
+                  <input id="morphSpoofPort" type="text" value="40443" placeholder="40443">
+                </div>
+              </div>
+            </div>
+
+            <div id="morphAdvancedPanel" class="morph-panel active">
+              <div class="info-box" data-i18n-html="morph.advancedInfo"><strong>Advanced:</strong> Toggle what to change. Domain list is used for <strong>SNI</strong> and <strong>HOST</strong>.</div>
+
+              <label data-i18n="morph.domainsLabel">Domain list (one per line):</label>
+              <textarea id="morphDomains" class="area-xs" data-i18n-placeholder="ph.domains" placeholder="example.com"></textarea>
+
+              <div class="morph-switch-grid">
+                <label class="switch-item" data-i18n-title="morph.addrSwitchTitle">
+                  <span class="switch-label">Address</span>
+                  <span class="switch">
+                    <input type="checkbox" id="morphChangeAddr" checked>
+                    <span class="switch-slider"></span>
+                  </span>
+                </label>
+                <label class="switch-item" data-i18n-title="morph.sniSwitchTitle">
+                  <span class="switch-label">SNI</span>
+                  <span class="switch">
+                    <input type="checkbox" id="morphChangeSni" checked>
+                    <span class="switch-slider"></span>
+                  </span>
+                </label>
+                <label class="switch-item" data-i18n-title="morph.hostSwitchTitle">
+                  <span class="switch-label">HOST</span>
+                  <span class="switch">
+                    <input type="checkbox" id="morphChangeHost">
+                    <span class="switch-slider"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div id="morphAddrFields" class="spoof-fields">
+                <div class="spoof-field">
+                  <label for="morphAddrHost" data-i18n="morph.newAddr">New address</label>
+                  <input id="morphAddrHost" type="text" data-i18n-placeholder="ph.emptyDomain" placeholder="empty = from domain list">
+                </div>
+                <div class="spoof-field">
+                  <label for="morphAddrPort" data-i18n="morph.addrPort">Address port</label>
+                  <input id="morphAddrPort" type="text" data-i18n-placeholder="ph.keepPort" placeholder="empty = keep port">
+                </div>
+              </div>
+            </div>
+
+            <button id="btnMorphBuild" class="btn btn-blue btn-block btn-morph"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 2l6 6-6 6V2z"/></svg> <span data-i18n="morph.apply">Apply Morph</span></button>
+
+            <textarea id="morphOutput" class="area-md" readonly data-i18n-placeholder="ph.morphOut" placeholder="Final output..."></textarea>
+
+            <div class="toolbar toolbar-block">
+              <button id="morphCopy" class="btn btn-secondary btn-flex"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="ext.copyOut">Copy output</span></button>
+              <button id="morphClear" class="btn btn-danger" data-i18n="gen.clear">Clear</button>
+            </div>
+          </section>
+        </div>
+      </div>
+
+    </main>
+  </div>
+  </div>
+
+  <div class="toast-host" aria-live="polite" aria-atomic="true">
+    <div id="copyMsg" class="toast" role="status">
+      <span class="toast-accent" aria-hidden="true"></span>
+      <span class="toast-icon" aria-hidden="true">◆</span>
+      <span class="toast-text"></span>
+      <span class="toast-tag">NOTIFY</span>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <span data-i18n="footer.secure">SECURE · ONLINE</span>
+    <span data-i18n="footer.versionSimple">VLESS TOOLS v2.0 · Simple UI</span>
+  </footer>
+
+
+  <footer class="sys-footer">
+    <div class="sys-footer-status"><strong>CONNECTION</strong> :: <span data-i18n="footer.secure">SECURE · ONLINE</span></div>
+    <div>NETWORK STAT :: 01100001 01100011 01110100 01101001 01110110 01100101</div>
+    <div data-i18n="footer.version">VLESS TOOLS v2.0 · CP2077 HUD</div>
+  </footer>
+
+  <script>
+    // --- i18n (EN default · FA · RU) ---
+    const I18N = {
+      en: {
+        pageTitle: "VLESS Tools",
+        "brand.kicker": "/// SECURE CONFIG INTERFACE",
+        "brand.subtitle": "Config toolkit · PROTOCOL <code>6326-A44</code>",
+        "tab.generator": "Config Builder",
+        "tab.extractor": "IP Extractor",
+        "tab.morph": "Config Morph",
+        "tag.required": "Required",
+        "tag.input": "Input",
+        "tag.output": "Output",
+        "tag.duplicate": "Duplicates",
+        "tag.transform": "Transform",
+        "tag.listCidr": "List / CIDR",
+        "tag.listRange": "CDN ranges",
+        "gen.configTitle": "1. Base config",
+        "gen.configHint": "Paste a VLESS link — <code>@host:</code> is replaced with entered IPs or ranges.",
+        "gen.ipsTitle": "2. IPs",
+        "gen.ipList": "IP list",
+        "gen.ipRange": "IP ranges",
+        "gen.dropTitle": "Import file or Drag & Drop",
+        "gen.dropHint": "txt / csv / log — single IP or CIDR",
+        "gen.appendTitle": "On: append to list / Off: replace",
+        "gen.appendMode": "Append to list",
+        "gen.pickFile": "Pick file",
+        "gen.rangeHint": "One CIDR per line. Large CDN ranges auto-sample as /24.",
+        "gen.cdnCount": "Ranges in box:",
+        "gen.metricIp": "IPs (expanded)",
+        "gen.metricCfg": "Output configs",
+        "gen.metricPart": "Parts",
+        "gen.outputModule": "◆◆◆ OUTPUT MODULE ◆◆◆",
+        "gen.outputTitle": "3. Config output",
+        "gen.perPartTitle": "Configs per part",
+        "gen.perPart": "Configs per part:",
+        "gen.onePartTitle": "All configs in one output",
+        "gen.onePart": "Single part",
+        "gen.buildTitle": "Generate from base config and IPs",
+        "gen.build": "Generate",
+        "gen.copyPart": "Copy part",
+        "gen.copyAll": "Copy all",
+        "gen.dlPart": "DL part",
+        "gen.dlAll": "DL all",
+        "gen.clear": "Clear",
+        "gen.noOutput": "No output yet",
+        "gen.partPrev": "Previous part",
+        "gen.partNext": "Next part",
+        "gen.partN": "Part {n}",
+        "gen.partView": "Showing part {current} of {total}",
+        "ext.inputTitle": "1. Config list",
+        "ext.expandTitle": "Expand each CIDR to individual IPs",
+        "ext.expandCidr": "Expand CIDR to IP list",
+        "ext.inLines": "Input lines",
+        "ext.filterWs": "WS+TLS pass",
+        "ext.result": "Extract result",
+        "ext.outputTitle": "2. Extraction output",
+        "ext.extract": "Extract IPs",
+        "ext.wsTlsTitle": "Only configs with type=ws and security=tls",
+        "ext.wsTls": "WS + TLS only",
+        "ext.addrsTitle": "@address from each config",
+        "ext.addrs": "Addresses",
+        "ext.sniTitle": "sni= query parameter",
+        "ext.hostTitle": "host= query parameter",
+        "ext.copyOut": "Copy output",
+        "ext.dupTitle": "3. Duplicate IPs",
+        "ext.dupCount": "Duplicates",
+        "ext.dupUnique": "Unique dupes",
+        "ext.dupGap": "Gap (in − out)",
+        "ext.copyDup": "Copy duplicates",
+        "morph.inputTitle": "1. Input configs",
+        "morph.inCount": "Input count",
+        "morph.outCount": "Output count",
+        "morph.settingsTitle": "2. Morph settings",
+        "morph.spoofTitle": "Quick mode: only @IP:Port to local address",
+        "morph.spoofHint": "Local proxy — SNI & host unchanged",
+        "morph.spoofInfo": "Only <strong>Address</strong> changes. <strong>SNI</strong>, <strong>HOST</strong> and config name are kept.",
+        "morph.addr": "Address",
+        "morph.port": "Port",
+        "morph.advancedInfo": "<strong>Advanced:</strong> Toggle what to change. Domain list is used for <strong>SNI</strong> and <strong>HOST</strong>.",
+        "morph.domainsLabel": "Domain list (one per line):",
+        "morph.addrSwitchTitle": "Address field in config",
+        "morph.sniSwitchTitle": "SNI parameter",
+        "morph.hostSwitchTitle": "HOST parameter",
+        "morph.newAddr": "New address",
+        "morph.addrPort": "Address port",
+        "morph.apply": "Apply Morph",
+        "theme.simple": "Simple",
+        "theme.cyber": "Cyber",
+        "footer.secure": "SECURE · ONLINE",
+        "footer.version": "VLESS TOOLS v2.0 · CP2077 HUD",
+        "footer.versionSimple": "VLESS TOOLS v2.0 · Simple UI",
+        "ph.config": "vless://UUID@domain.com:443?security=tls&type=ws&sni=...",
+        "ph.ips": "One IP or CIDR per line\ne.g. 141.101.123.238\n8.20.101.0/24",
+        "ph.ranges": "8.20.101.0/24\n104.16.0.0/24",
+        "ph.out": "Output appears here...",
+        "ph.extInput": "VLESS configs or IP/CIDR, one per line...",
+        "ph.extOut": "Results appear here...",
+        "ph.extDiff": "Duplicate IPs between input lines...",
+        "ph.morphInput": "One VLESS config per line...",
+        "ph.domains": "example.com\nletsencrypt.org",
+        "ph.morphOut": "Final output...",
+        "ph.emptyDomain": "empty = from domain list",
+        "ph.keepPort": "empty = keep port",
+        "toast.noRange": "No IP range found",
+        "toast.fileDownloaded": "File downloaded",
+        "toast.invalidBase": "Invalid base config",
+        "toast.rangeOverflow": "Range {cidr} cannot be processed",
+        "toast.noValidIp": "No valid IP found",
+        "toast.noIpInSource": "No valid IP/CIDR in «{source}»",
+        "toast.ipsAppended": "{count} IPs appended",
+        "toast.ipsReplaced": "{count} IPs replaced",
+        "toast.fileReadError": "File read error",
+        "toast.emptyIpList": "IP list is empty",
+        "toast.singlePartDone": "Single part output ready",
+        "toast.copied": "Copied",
+        "toast.allCopied": "All copied",
+        "toast.cleared": "Cleared",
+        "toast.fetchingRanges": "Fetching ranges...",
+        "toast.rangesLoaded": "{count} {label} ranges loaded",
+        "toast.fetchError": "Online fetch failed",
+        "toast.enterRangeFirst": "Enter ranges first",
+        "toast.shuffled": "Ranges shuffled",
+        "toast.emptyInput": "Input is empty",
+        "toast.noWsTls": "No WS+TLS configs found",
+        "toast.found": "{count} items found{extra}",
+        "toast.nothingFound": "Nothing found",
+        "toast.nothingToCopy": "Nothing to copy",
+        "toast.outputCopied": "Output copied",
+        "toast.dupCopied": "Duplicates copied",
+        "toast.noVless": "No valid VLESS configs",
+        "toast.invalidSpoofAddr": "Invalid spoof address",
+        "toast.invalidSpoofPort": "Invalid spoof port",
+        "toast.enableSwitch": "Enable at least one switch",
+        "toast.invalidPort": "Invalid @ port",
+        "toast.invalidAddr": "Invalid @ address",
+        "toast.emptyDomains": "Domain list is empty",
+        "toast.noMorphOutput": "No output generated",
+        "toast.morphed": "{count} configs morphed",
+        "toast.expandNote": " [range→list]",
+        "toast.wsTlsNote": " (from {count} WS+TLS configs)",
+        "toast.truncNote": " (limited to {max})",
+        "toast.sampleNote": " ({count} large ranges → /24 sample)",
+        "toast.limitedNote": " (limited to {max})",
+        "toast.input": "input",
+        "toast.text": "text",
+      },
+      fa: {
+        pageTitle: "VLESS Tools",
+        "brand.kicker": "/// رابط امن کانفیگ",
+        "brand.subtitle": "جعبه ابزار کانفیگ · PROTOCOL <code>6326-A44</code>",
+        "tab.generator": "سازنده کانفیگ",
+        "tab.extractor": "استخراج IP",
+        "tab.morph": "Morph کانفیگ",
+        "tag.required": "ضروری",
+        "tag.input": "ورودی",
+        "tag.output": "خروجی",
+        "tag.duplicate": "تکراری",
+        "tag.transform": "تبدیل",
+        "tag.listCidr": "لیست / CIDR",
+        "tag.listRange": "رنج CDN",
+        "gen.configTitle": "۱. کانفیگ پایه",
+        "gen.configHint": "یک لینک VLESS — آدرس <code>@host:</code> با IPها یا رنج‌های واردشده جایگزین می‌شود.",
+        "gen.ipsTitle": "۲. IPها",
+        "gen.ipList": "لیست IP",
+        "gen.ipRange": "رنج IP",
+        "gen.dropTitle": "وارد کردن از فایل یا Drag & Drop",
+        "gen.dropHint": "txt / csv / log — IP تکی یا CIDR",
+        "gen.appendTitle": "روشن: به لیست فعلی اضافه / خاموش: جایگزین",
+        "gen.appendMode": "افزودن به لیست",
+        "gen.pickFile": "انتخاب فایل",
+        "gen.rangeHint": "هر خط یک رنج CIDR — رنج‌های بزرگ CDN به‌صورت خودکار /24 نمونه می‌شوند.",
+        "gen.cdnCount": "تعداد رنج در باکس:",
+        "gen.metricIp": "IP (پس از گسترش)",
+        "gen.metricCfg": "کانفیگ خروجی",
+        "gen.metricPart": "تعداد پارت",
+        "gen.outputModule": "◆◆◆ ماژول خروجی ◆◆◆",
+        "gen.outputTitle": "۳. خروجی کانفیگ",
+        "gen.perPartTitle": "تعداد کانفیگ در هر پارت",
+        "gen.perPart": "کانفیگ در هر پارت:",
+        "gen.onePartTitle": "همه کانفیگ‌ها در یک خروجی",
+        "gen.onePart": "خروجی تک‌پارت",
+        "gen.buildTitle": "تولید خروجی براساس کانفیگ پایه و IPها",
+        "gen.build": "تولید خروجی",
+        "gen.copyPart": "کپی همین پارت",
+        "gen.copyAll": "کپی کل خروجی",
+        "gen.dlPart": "DL پارت",
+        "gen.dlAll": "DL کل",
+        "gen.clear": "پاک‌سازی",
+        "gen.noOutput": "هنوز خروجی ساخته نشده",
+        "gen.partPrev": "پارت قبلی",
+        "gen.partNext": "پارت بعدی",
+        "gen.partN": "پارت {n}",
+        "gen.partView": "نمایش پارت {current} از {total}",
+        "ext.inputTitle": "۱. لیست کانفیگ‌ها",
+        "ext.expandTitle": "هر رنج CIDR به IPهای تکی تبدیل شود",
+        "ext.expandCidr": "گسترش رنج IP به لیست",
+        "ext.inLines": "خطوط ورودی",
+        "ext.filterWs": "عبور فیلتر WS+TLS",
+        "ext.result": "نتیجه استخراج",
+        "ext.outputTitle": "۲. خروجی استخراج",
+        "ext.extract": "استخراج IPها",
+        "ext.wsTlsTitle": "فقط کانفیگ‌های type=ws و security=tls",
+        "ext.wsTls": "فقط WS + TLS",
+        "ext.addrsTitle": "بخش @آدرس از هر کانفیگ",
+        "ext.addrs": "آدرس‌ها",
+        "ext.sniTitle": "پارامتر sni=",
+        "ext.hostTitle": "پارامتر host=",
+        "ext.copyOut": "کپی خروجی",
+        "ext.dupTitle": "۳. IPهای تکراری",
+        "ext.dupCount": "تعداد تکراری",
+        "ext.dupUnique": "IP یکتا تکراری",
+        "ext.dupGap": "اختلاف (ورودی − نتیجه)",
+        "ext.copyDup": "کپی تکراری‌ها",
+        "morph.inputTitle": "۱. کانفیگ‌های ورودی",
+        "morph.inCount": "تعداد ورودی",
+        "morph.outCount": "تعداد خروجی",
+        "morph.settingsTitle": "۲. تنظیمات Morph",
+        "morph.spoofTitle": "حالت سریع: فقط @IP:Port به آدرس محلی",
+        "morph.spoofHint": "اتصال به پروکسی محلی — SNI و host دست نخورده",
+        "morph.spoofInfo": "فقط <strong>Address</strong> عوض می‌شود. <strong>SNI</strong>، <strong>HOST</strong> و نام کانفیگ حفظ می‌شوند.",
+        "morph.addr": "آدرس",
+        "morph.port": "پورت",
+        "morph.advancedInfo": "<strong>حالت پیشرفته:</strong> با سوییچ‌ها مشخص کنید کدام بخش عوض شود. لیست دامنه برای <strong>SNI</strong> و <strong>HOST</strong> استفاده می‌شود.",
+        "morph.domainsLabel": "لیست دامنه‌ها (هر خط یکی):",
+        "morph.addrSwitchTitle": "بخش Address در کانفیگ",
+        "morph.sniSwitchTitle": "پارامتر SNI",
+        "morph.hostSwitchTitle": "پارامتر HOST",
+        "morph.newAddr": "Address جدید",
+        "morph.addrPort": "پورت Address",
+        "morph.apply": "اعمال Morph",
+        "theme.simple": "ساده",
+        "theme.cyber": "سایبر",
+        "footer.secure": "امن · آنلاین",
+        "footer.version": "VLESS TOOLS v2.0 · CP2077 HUD",
+        "footer.versionSimple": "VLESS TOOLS v2.0 · رابط ساده",
+        "ph.config": "vless://UUID@domain.com:443?security=tls&type=ws&sni=...",
+        "ph.ips": "هر خط یک IP یا CIDR\nمثال: 141.101.123.238\n8.20.101.0/24",
+        "ph.ranges": "8.20.101.0/24\n104.16.0.0/24",
+        "ph.out": "خروجی اینجا نمایش داده می‌شود...",
+        "ph.extInput": "لیست کانفیگ VLESS یا IP/CIDR (هر خط یک مورد)...",
+        "ph.extOut": "نتایج استخراج اینجا ظاهر می‌شوند...",
+        "ph.extDiff": "IPهای تکراری بین خطوط ورودی...",
+        "ph.morphInput": "هر خط یک کانفیگ VLESS...",
+        "ph.domains": "example.com\nletsencrypt.org",
+        "ph.morphOut": "خروجی نهایی...",
+        "ph.emptyDomain": "خالی = از لیست دامنه",
+        "ph.keepPort": "خالی = حفظ پورت",
+        "toast.noRange": "رنج IP یافت نشد",
+        "toast.fileDownloaded": "فایل دانلود شد",
+        "toast.invalidBase": "کانفیگ پایه معتبر نیست",
+        "toast.rangeOverflow": "رنج {cidr} قابل پردازش نیست",
+        "toast.noValidIp": "هیچ IP معتبری یافت نشد",
+        "toast.noIpInSource": "از «{source}» هیچ IP/CIDR معتبر پیدا نشد",
+        "toast.ipsAppended": "{count} IP اضافه شد",
+        "toast.ipsReplaced": "{count} IP جایگزین شد",
+        "toast.fileReadError": "خطا در خواندن فایل",
+        "toast.emptyIpList": "لیست IP خالی است",
+        "toast.singlePartDone": "تک‌پارت شد",
+        "toast.copied": "کپی شد",
+        "toast.allCopied": "همه کپی شد",
+        "toast.cleared": "پاک شد",
+        "toast.fetchingRanges": "در حال دریافت رنج‌ها...",
+        "toast.rangesLoaded": "{count} رنج {label} دریافت شد",
+        "toast.fetchError": "خطا در دریافت آنلاین",
+        "toast.enterRangeFirst": "ابتدا رنج وارد کنید",
+        "toast.shuffled": "لیست رنج‌ها shuffle شد",
+        "toast.emptyInput": "ورودی خالی است",
+        "toast.noWsTls": "هیچ کانفیگ WS+TLS پیدا نشد",
+        "toast.found": "{count} مورد پیدا شد{extra}",
+        "toast.nothingFound": "هیچ موردی پیدا نشد",
+        "toast.nothingToCopy": "چیزی برای کپی نیست",
+        "toast.outputCopied": "خروجی کپی شد",
+        "toast.dupCopied": "تکراری‌ها کپی شد",
+        "toast.noVless": "هیچ کانفیگ VLESS معتبری وارد نشده",
+        "toast.invalidSpoofAddr": "آدرس Spoof نامعتبر است",
+        "toast.invalidSpoofPort": "پورت Spoof نامعتبر است",
+        "toast.enableSwitch": "حداقل یک سوییچ را فعال کنید",
+        "toast.invalidPort": "پورت @ نامعتبر است",
+        "toast.invalidAddr": "آدرس @ نامعتبر است",
+        "toast.emptyDomains": "لیست دامنه‌ها خالی است",
+        "toast.noMorphOutput": "هیچ خروجی تولید نشد",
+        "toast.morphed": "{count} کانفیگ Morph شد",
+        "toast.expandNote": " [رنج→لیست]",
+        "toast.wsTlsNote": " (از {count} کانفیگ WS+TLS)",
+        "toast.truncNote": " (محدود به {max})",
+        "toast.sampleNote": " ({count} رنج بزرگ → /24 نمونه)",
+        "toast.limitedNote": " (محدود به {max})",
+        "toast.input": "ورودی",
+        "toast.text": "متن",
+      },
+      ru: {
+        pageTitle: "VLESS Tools",
+        "brand.kicker": "/// ЗАЩИЩЁННЫЙ ИНТЕРФЕЙС",
+        "brand.subtitle": "Набор инструментов · PROTOCOL <code>6326-A44</code>",
+        "tab.generator": "Генератор",
+        "tab.extractor": "Извлечение IP",
+        "tab.morph": "Morph конфигов",
+        "tag.required": "Обязательно",
+        "tag.input": "Ввод",
+        "tag.output": "Вывод",
+        "tag.duplicate": "Дубликаты",
+        "tag.transform": "Преобразование",
+        "tag.listCidr": "Список / CIDR",
+        "tag.listRange": "CDN диапазоны",
+        "gen.configTitle": "1. Базовый конфиг",
+        "gen.configHint": "VLESS ссылка — <code>@host:</code> заменяется на введённые IP или диапазоны.",
+        "gen.ipsTitle": "2. IP адреса",
+        "gen.ipList": "Список IP",
+        "gen.ipRange": "Диапазоны IP",
+        "gen.dropTitle": "Импорт файла или Drag & Drop",
+        "gen.dropHint": "txt / csv / log — один IP или CIDR",
+        "gen.appendTitle": "Вкл: добавить / Выкл: заменить",
+        "gen.appendMode": "Добавить в список",
+        "gen.pickFile": "Выбрать файл",
+        "gen.rangeHint": "Один CIDR на строку. Большие CDN диапазоны автоматически как /24.",
+        "gen.cdnCount": "Диапазонов в поле:",
+        "gen.metricIp": "IP (развёрнуто)",
+        "gen.metricCfg": "Конфигов",
+        "gen.metricPart": "Частей",
+        "gen.outputModule": "◆◆◆ МОДУЛЬ ВЫВОДА ◆◆◆",
+        "gen.outputTitle": "3. Вывод конфигов",
+        "gen.perPartTitle": "Конфигов в каждой части",
+        "gen.perPart": "Конфигов в части:",
+        "gen.onePartTitle": "Все конфиги в одном выводе",
+        "gen.onePart": "Одна часть",
+        "gen.buildTitle": "Сгенерировать из базового конфига и IP",
+        "gen.build": "Сгенерировать",
+        "gen.copyPart": "Копировать часть",
+        "gen.copyAll": "Копировать всё",
+        "gen.dlPart": "DL часть",
+        "gen.dlAll": "DL всё",
+        "gen.clear": "Очистить",
+        "gen.noOutput": "Вывод ещё не создан",
+        "gen.partPrev": "Предыдущая часть",
+        "gen.partNext": "Следующая часть",
+        "gen.partN": "Часть {n}",
+        "gen.partView": "Часть {current} из {total}",
+        "ext.inputTitle": "1. Список конфигов",
+        "ext.expandTitle": "Развернуть CIDR в список IP",
+        "ext.expandCidr": "Развернуть диапазон в список",
+        "ext.inLines": "Строк ввода",
+        "ext.filterWs": "WS+TLS прошло",
+        "ext.result": "Результат",
+        "ext.outputTitle": "2. Результат извлечения",
+        "ext.extract": "Извлечь IP",
+        "ext.wsTlsTitle": "Только type=ws и security=tls",
+        "ext.wsTls": "Только WS + TLS",
+        "ext.addrsTitle": "@address из каждого конфига",
+        "ext.addrs": "Адреса",
+        "ext.sniTitle": "Параметр sni=",
+        "ext.hostTitle": "Параметр host=",
+        "ext.copyOut": "Копировать вывод",
+        "ext.dupTitle": "3. Дубликаты IP",
+        "ext.dupCount": "Дубликаты",
+        "ext.dupUnique": "Уник. дубликаты",
+        "ext.dupGap": "Разница (в − вы)",
+        "ext.copyDup": "Копировать дубликаты",
+        "morph.inputTitle": "1. Входные конфиги",
+        "morph.inCount": "Входных",
+        "morph.outCount": "Выходных",
+        "morph.settingsTitle": "2. Настройки Morph",
+        "morph.spoofTitle": "Быстрый режим: только @IP:Port на локальный",
+        "morph.spoofHint": "Локальный прокси — SNI и host без изменений",
+        "morph.spoofInfo": "Меняется только <strong>Address</strong>. <strong>SNI</strong>, <strong>HOST</strong> и имя сохраняются.",
+        "morph.addr": "Адрес",
+        "morph.port": "Порт",
+        "morph.advancedInfo": "<strong>Расширенный:</strong> Выберите что менять. Список доменов для <strong>SNI</strong> и <strong>HOST</strong>.",
+        "morph.domainsLabel": "Список доменов (по одному на строку):",
+        "morph.addrSwitchTitle": "Поле Address",
+        "morph.sniSwitchTitle": "Параметр SNI",
+        "morph.hostSwitchTitle": "Параметр HOST",
+        "morph.newAddr": "Новый адрес",
+        "morph.addrPort": "Порт адреса",
+        "morph.apply": "Применить Morph",
+        "theme.simple": "Простой",
+        "theme.cyber": "Кибер",
+        "footer.secure": "БЕЗОПАСНО · ОНЛАЙН",
+        "footer.version": "VLESS TOOLS v2.0 · CP2077 HUD",
+        "footer.versionSimple": "VLESS TOOLS v2.0 · Простой UI",
+        "ph.config": "vless://UUID@domain.com:443?security=tls&type=ws&sni=...",
+        "ph.ips": "Один IP или CIDR на строку",
+        "ph.ranges": "8.20.101.0/24\n104.16.0.0/24",
+        "ph.out": "Вывод появится здесь...",
+        "ph.extInput": "VLESS конфиги или IP/CIDR, по одному на строку...",
+        "ph.extOut": "Результаты появятся здесь...",
+        "ph.extDiff": "Дубликаты IP между строками...",
+        "ph.morphInput": "Один VLESS конфиг на строку...",
+        "ph.domains": "example.com\nletsencrypt.org",
+        "ph.morphOut": "Итоговый вывод...",
+        "ph.emptyDomain": "пусто = из списка доменов",
+        "ph.keepPort": "пусто = сохранить порт",
+        "toast.noRange": "Диапазон IP не найден",
+        "toast.fileDownloaded": "Файл скачан",
+        "toast.invalidBase": "Неверный базовый конфиг",
+        "toast.rangeOverflow": "Диапазон {cidr} не обрабатывается",
+        "toast.noValidIp": "Действительных IP не найдено",
+        "toast.noIpInSource": "В «{source}» нет IP/CIDR",
+        "toast.ipsAppended": "Добавлено {count} IP",
+        "toast.ipsReplaced": "Заменено {count} IP",
+        "toast.fileReadError": "Ошибка чтения файла",
+        "toast.emptyIpList": "Список IP пуст",
+        "toast.singlePartDone": "Одна часть готова",
+        "toast.copied": "Скопировано",
+        "toast.allCopied": "Всё скопировано",
+        "toast.cleared": "Очищено",
+        "toast.fetchingRanges": "Загрузка диапазонов...",
+        "toast.rangesLoaded": "Загружено {count} диапазонов {label}",
+        "toast.fetchError": "Ошибка онлайн-загрузки",
+        "toast.enterRangeFirst": "Сначала введите диапазоны",
+        "toast.shuffled": "Диапазоны перемешаны",
+        "toast.emptyInput": "Ввод пуст",
+        "toast.noWsTls": "Конфигов WS+TLS не найдено",
+        "toast.found": "Найдено {count}{extra}",
+        "toast.nothingFound": "Ничего не найдено",
+        "toast.nothingToCopy": "Нечего копировать",
+        "toast.outputCopied": "Вывод скопирован",
+        "toast.dupCopied": "Дубликаты скопированы",
+        "toast.noVless": "Нет действительных VLESS конфигов",
+        "toast.invalidSpoofAddr": "Неверный spoof адрес",
+        "toast.invalidSpoofPort": "Неверный spoof порт",
+        "toast.enableSwitch": "Включите хотя бы один переключатель",
+        "toast.invalidPort": "Неверный @ порт",
+        "toast.invalidAddr": "Неверный @ адрес",
+        "toast.emptyDomains": "Список доменов пуст",
+        "toast.noMorphOutput": "Вывод не создан",
+        "toast.morphed": "{count} конфигов morphed",
+        "toast.expandNote": " [диап→список]",
+        "toast.wsTlsNote": " (из {count} WS+TLS)",
+        "toast.truncNote": " (лимит {max})",
+        "toast.sampleNote": " ({count} больших → /24)",
+        "toast.limitedNote": " (лимит {max})",
+        "toast.input": "ввод",
+        "toast.text": "текст",
+      },
+    };
+
+    let currentLang = localStorage.getItem("vless-lang") || "en";
+
+    function t(key, vars = {}) {
+      let str = (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+      Object.entries(vars).forEach(([k, v]) => { str = str.replace(new RegExp(`\\{${k}\\}`, "g"), v); });
+      return str;
+    }
+
+    function applyI18n() {
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === "fa" ? "rtl" : "ltr";
+      document.title = t("pageTitle");
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        if (el.id === "btnExtractLabel") return;
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-html]").forEach(el => {
+        el.innerHTML = t(el.dataset.i18nHtml);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+      });
+      document.querySelectorAll("[data-i18n-title]").forEach(el => {
+        el.title = t(el.dataset.i18nTitle);
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach(el => {
+        el.setAttribute("aria-label", t(el.dataset.i18nAria));
+      });
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === currentLang);
+      });
+
+      if (typeof updateExtractButtonText === "function") updateExtractButtonText();
+      if (typeof switchIpTab === "function") switchIpTab(typeof activeIpTab !== "undefined" ? activeIpTab : "list");
+      if (typeof refreshUI === "function") refreshUI();
+    }
+
+    function setLang(lang) {
+      if (!I18N[lang]) return;
+      currentLang = lang;
+      localStorage.setItem("vless-lang", lang);
+      applyI18n();
+    }
+
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => setLang(btn.dataset.lang));
+    });
+
+    // --- Tab Logic ---
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      const targetContent = document.getElementById(`tab-${tabName}`);
+      if (targetContent) targetContent.classList.add('active');
+      
+      const btns = document.querySelectorAll('.tab-btn');
+      if (tabName === 'generator') btns[0].classList.add('active');
+      if (tabName === 'extractor') btns[1].classList.add('active');
+      if (tabName === 'morph') btns[2].classList.add('active');
+    }
+
+    // --- Global Helpers ---
+    const IPV4_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
+    const elCopyMsg = document.getElementById("copyMsg");
+    let toastTimer = null;
+
+    function parseToast(msg) {
+      const raw = String(msg);
+      const rules = [
+        { re: /^✅\s*/, type: "success", icon: "✓" },
+        { re: /^⚠️\s*/, type: "warn", icon: "!" },
+        { re: /^⚠\s*/, type: "warn", icon: "!" },
+        { re: /^❌\s*/, type: "error", icon: "✕" },
+        { re: /^⏳\s*/, type: "info", icon: "…" },
+      ];
+      for (const rule of rules) {
+        if (rule.re.test(raw)) {
+          return { type: rule.type, icon: rule.icon, text: raw.replace(rule.re, "").trim() };
+        }
+      }
+      return { type: "info", icon: "◆", text: raw.trim() };
+    }
+
+    function showToast(msg) {
+      if (!elCopyMsg) { alert(msg); return; }
+
+      const { type, icon, text } = parseToast(msg);
+      const iconEl = elCopyMsg.querySelector(".toast-icon");
+      const textEl = elCopyMsg.querySelector(".toast-text");
+      if (iconEl) iconEl.textContent = icon;
+      if (textEl) textEl.textContent = text;
+
+      if (toastTimer) clearTimeout(toastTimer);
+      elCopyMsg.className = `toast toast--${type}`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => elCopyMsg.classList.add("visible"));
+      });
+      toastTimer = setTimeout(() => {
+        elCopyMsg.classList.remove("visible");
+        toastTimer = null;
+      }, 2800);
+    }
+
+    function extractIPs(text) {
+      return parseAllIps(text);
+    }
+
+    const CIDR_REGEX = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+    const CIDR_FIND_REGEX = /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2})\b/g;
+    const MAX_IP_EXPAND = 10000;
+
+    function normalizeExtractLine(line) {
+      return line.trim().replace(/^["']+|["',\s]+$/g, "").trim();
+    }
+
+    function isValidCidr(cidr) {
+      const parts = cidr.split("/");
+      if (parts.length !== 2) return false;
+      const bits = Number(parts[1]);
+      return isValidOctets(parts[0]) && Number.isInteger(bits) && bits >= 0 && bits <= 32;
+    }
+
+    function findCidrsInText(text) {
+      const found = [];
+      const seen = new Set();
+      let m;
+      CIDR_FIND_REGEX.lastIndex = 0;
+      while ((m = CIDR_FIND_REGEX.exec(text)) !== null) {
+        const cidr = m[1];
+        if (isValidCidr(cidr) && !seen.has(cidr)) {
+          seen.add(cidr);
+          found.push(cidr);
+        }
+      }
+      return found;
+    }
+
+    const IP_RANGE_FIND_REGEX = /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*-\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/g;
+
+    function ipRangeToCidr(startIp, endIp) {
+      if (!isValidOctets(startIp) || !isValidOctets(endIp)) return null;
+      let start = ipToLong(startIp);
+      let end = ipToLong(endIp);
+      if (start > end) [start, end] = [end, start];
+      const size = end - start + 1;
+      if (!size || (size & (size - 1)) !== 0) return null;
+      if ((start & (size - 1)) !== 0) return null;
+      const prefix = 32 - Math.log2(size);
+      return `${longToIp(start)}/${prefix}`;
+    }
+
+    function findIpRangesInText(text) {
+      const found = [];
+      const seen = new Set();
+      let m;
+      IP_RANGE_FIND_REGEX.lastIndex = 0;
+      while ((m = IP_RANGE_FIND_REGEX.exec(text)) !== null) {
+        const start = m[1];
+        const end = m[2];
+        if (!isValidOctets(start) || !isValidOctets(end)) continue;
+        const cidr = ipRangeToCidr(start, end);
+        const value = cidr || `${start} - ${end}`;
+        if (seen.has(value)) continue;
+        seen.add(value);
+        found.push({ start, end, cidr, value });
+      }
+      return found;
+    }
+
+    function expandIpRange(startIp, endIp) {
+      const cidr = ipRangeToCidr(startIp, endIp);
+      if (cidr) return expandCidrForExtract(cidr);
+      let start = ipToLong(startIp);
+      let end = ipToLong(endIp);
+      if (start > end) [start, end] = [end, start];
+      const count = end - start + 1;
+      if (count > MAX_IP_EXPAND) return { ips: [], tooLarge: true };
+      const ips = [];
+      for (let i = start; i <= end; i++) ips.push(longToIp(i));
+      return { ips, tooLarge: false };
+    }
+
+    function detectCidrInInput(text) {
+      return text.split(/\n+/).some(line => {
+        const norm = normalizeExtractLine(line);
+        return findCidrsInText(norm).length > 0 || findIpRangesInText(norm).length > 0;
+      });
+    }
+
+    const CDN_ONLINE_REPO = "https://raw.githubusercontent.com/vUnkname/cdn-ip-ranges/main";
+
+    function ipToLong(ip) {
+      return ip.split(".").reduce((acc, o) => (acc << 8) + Number(o), 0) >>> 0;
+    }
+
+    function longToIp(n) {
+      return [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+    }
+
+    function isValidOctets(ip) {
+      return ip.split(".").every(o => {
+        const n = Number(o);
+        return o !== "" && n >= 0 && n <= 255;
+      });
+    }
+
+    function expandCidr(cidr) {
+      const parts = cidr.trim().split("/");
+      if (parts.length !== 2) return [];
+      const [base, bitsStr] = parts;
+      const bits = Number(bitsStr);
+      if (!isValidOctets(base) || !Number.isInteger(bits) || bits < 0 || bits > 32) return [];
+      const hostCount = 2 ** (32 - bits);
+      if (hostCount > MAX_IP_EXPAND) return null;
+      const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+      const start = ipToLong(base) & mask;
+      const end = start + hostCount - 1;
+      const ips = [];
+      for (let i = start; i <= end; i++) ips.push(longToIp(i));
+      return ips;
+    }
+
+    function expandCidrSmart(cidr) {
+      const full = expandCidr(cidr);
+      if (full !== null) return { ips: full, sampled: false };
+      const parts = cidr.trim().split("/");
+      const bits = Number(parts[1]);
+      if (bits < 24 && isValidOctets(parts[0])) {
+        const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
+        const start = ipToLong(parts[0]) & mask;
+        const sample = expandCidr(`${longToIp(start)}/24`);
+        return { ips: sample || [], sampled: true, cidr };
+      }
+      return { ips: [], tooLarge: true, cidr };
+    }
+
+    function parseLineToIps(line) {
+      const trimmed = line.trim();
+      if (!trimmed) return [];
+      if (CIDR_REGEX.test(trimmed)) {
+        const { ips, sampled, tooLarge, cidr } = expandCidrSmart(trimmed);
+        if (tooLarge) return { overflow: true, cidr };
+        if (sampled) return { ips, sampled: true, cidr };
+        return ips;
+      }
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed) && isValidOctets(trimmed)) return [trimmed];
+      const matches = trimmed.match(IPV4_REGEX) || [];
+      return [...new Set(matches)];
+    }
+
+    function parseAllIps(text, maxTotal = MAX_IP_EXPAND) {
+      const lines = text.split(/\n+/);
+      const result = [];
+      const seen = new Set();
+      let truncated = false;
+      let overflowCidr = null;
+      let sampledCount = 0;
+
+      for (const line of lines) {
+        const parsed = parseLineToIps(line);
+        if (!Array.isArray(parsed)) {
+          if (parsed && parsed.overflow) overflowCidr = parsed.cidr;
+          if (parsed && parsed.sampled) {
+            sampledCount++;
+            for (const ip of parsed.ips) {
+              if (!seen.has(ip)) {
+                seen.add(ip);
+                result.push(ip);
+                if (result.length >= maxTotal) { truncated = true; break; }
+              }
+            }
+          }
+          continue;
+        }
+        for (const ip of parsed) {
+          if (!seen.has(ip)) {
+            seen.add(ip);
+            result.push(ip);
+            if (result.length >= maxTotal) {
+              truncated = true;
+              break;
+            }
+          }
+        }
+        if (truncated) break;
+      }
+
+      return { ips: result, truncated, overflowCidr, sampledCount };
+    }
+
+    function getAllGeneratorIps() {
+      const listText = elIps.value.trim();
+      const rangeText = elIpRanges.value.trim();
+      const combined = [listText, rangeText].filter(Boolean).join("\n");
+      return parseAllIps(combined);
+    }
+
+    // ==========================================
+    // TOOL 1: GENERATOR LOGIC
+    // ==========================================
+    const elConfig = document.getElementById("config");
+    const elIps = document.getElementById("ips");
+    const elIpRanges = document.getElementById("ipRanges");
+    const elOut = document.getElementById("out");
+    const elStatusDot = document.getElementById("statusIndicator");
+    const elIpCount = document.getElementById("ipCount");
+    const elCfgCount = document.getElementById("cfgCount");
+    const elPartCount = document.getElementById("partCount");
+    const elPerPart = document.getElementById("perPart");
+    const elPartSelect = document.getElementById("partSelect");
+    const elPrev = document.getElementById("prev");
+    const elNext = document.getElementById("next");
+    const elPartInfo = document.getElementById("partInfo");
+    const elDropzone = document.getElementById("dropzone");
+    const elIpFile = document.getElementById("ipFile");
+    const elPickFile = document.getElementById("pickFile");
+    const elAppendMode = document.getElementById("appendMode");
+    const elCdnOutputCount = document.getElementById("cdnOutputCount");
+    const elCdnOutputCountNum = document.getElementById("cdnOutputCountNum");
+
+    let allConfigs = [], parts = [], currentPartIndex = 0, activeIpTab = "list";
+
+    function switchIpTab(tab) {
+      activeIpTab = tab;
+      document.querySelectorAll(".ip-subtab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.ipTab === tab);
+      });
+      document.getElementById("ip-panel-list").classList.toggle("active", tab === "list");
+      document.getElementById("ip-panel-range").classList.toggle("active", tab === "range");
+      document.getElementById("ipSourceTag").textContent = tab === "list" ? t("tag.listCidr") : t("tag.listRange");
+    }
+
+    function updateIpCount() {
+      const { ips, truncated } = getAllGeneratorIps();
+      elIpCount.textContent = truncated ? `${ips.length}+` : String(ips.length);
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function shuffleLines(text) {
+      const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+      shuffleArray(lines);
+      return lines.join("\n");
+    }
+
+    function clampCdnOutputCount(n) {
+      const v = Number(n);
+      if (!Number.isFinite(v)) return 500;
+      return Math.min(50000, Math.max(0, Math.round(v)));
+    }
+
+    function getCdnOutputCount() {
+      return clampCdnOutputCount(elCdnOutputCountNum.value);
+    }
+
+    function syncCdnOutputFromRange() {
+      const v = clampCdnOutputCount(elCdnOutputCount.value);
+      elCdnOutputCount.value = v;
+      elCdnOutputCountNum.value = v;
+    }
+
+    function syncCdnOutputFromNum() {
+      const v = clampCdnOutputCount(elCdnOutputCountNum.value);
+      elCdnOutputCountNum.value = v;
+      elCdnOutputCount.value = v;
+    }
+
+    async function loadIPRanges(service) {
+      const url = `${CDN_ONLINE_REPO}/${service}.json`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(response.statusText);
+        const data = await response.json();
+        const ipRanges = data.ipv4 || [];
+        if (!ipRanges.length) {
+          showToast("⚠️ " + t("toast.noRange"));
+          return false;
+        }
+        const count = getCdnOutputCount();
+        const limit = Math.min(count, ipRanges.length);
+        const picked = shuffleArray([...ipRanges]).slice(0, limit);
+        elIpRanges.value = picked.join("\n");
+        return true;
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    }
+
+    function downloadFile(content, fileName) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      showToast("✅ " + t("toast.fileDownloaded"));
+    }
+
+    function renderPart() {
+      if (!parts.length) { elOut.value = ""; elPartInfo.textContent = "---"; return; }
+      elOut.value = parts[currentPartIndex].join("\n\n");
+      elPartInfo.textContent = t("gen.partView", { current: currentPartIndex + 1, total: parts.length });
+    }
+
+    function refreshUI() {
+      elPartCount.textContent = parts.length;
+      elCfgCount.textContent = allConfigs.length;
+
+      const has = parts.length > 0;
+      elPartSelect.disabled = !has;
+      elPrev.disabled = !has || currentPartIndex <= 0;
+      elNext.disabled = !has || currentPartIndex >= parts.length - 1;
+
+      elPartSelect.innerHTML = "";
+      if (has) {
+        parts.forEach((_, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.textContent = t("gen.partN", { n: i + 1 });
+          elPartSelect.appendChild(opt);
+        });
+        elPartSelect.value = currentPartIndex;
+      } else {
+        elPartSelect.innerHTML = `<option>${t("gen.noOutput")}</option>`;
+      }
+
+      renderPart();
+      updateIpCount();
+    }
+
+    function buildOutput() {
+      const base = elConfig.value.trim();
+      if (!base || !base.includes("@")) return showToast("⚠️ " + t("toast.invalidBase"));
+
+      const { ips, truncated, overflowCidr, sampledCount } = getAllGeneratorIps();
+      if (overflowCidr) return showToast("⚠️ " + t("toast.rangeOverflow", { cidr: overflowCidr }));
+      if (!ips.length) return showToast("⚠️ " + t("toast.noValidIp"));
+
+      allConfigs = ips.map(ip => base.replace(/@[^:]+:/, `@${ip}:`));
+
+      const per = Math.max(1, Number(elPerPart.value) || 20);
+      parts = [];
+      for (let i = 0; i < allConfigs.length; i += per) parts.push(allConfigs.slice(i, i + per));
+
+      currentPartIndex = 0;
+      refreshUI();
+      elStatusDot.className = "status-dot ok";
+      let note = "";
+      if (sampledCount) note += t("toast.sampleNote", { count: sampledCount });
+      if (truncated) note += t("toast.limitedNote", { max: MAX_IP_EXPAND });
+      showToast(`✅ ${allConfigs.length}${note}`);
+    }
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(reader.error || new Error("File read error"));
+        reader.readAsText(file);
+      });
+    }
+
+    function applyImportedText(text, sourceLabel) {
+      const src = sourceLabel || t("toast.input");
+      const { ips } = parseAllIps(text);
+      if (!ips.length) {
+        showToast("⚠️ " + t("toast.noIpInSource", { source: src }));
+        return;
+      }
+      const append = !!elAppendMode.checked;
+      const target = activeIpTab === "range" ? elIpRanges : elIps;
+      const current = parseAllIps(target.value).ips;
+      const merged = append ? [...new Set([...current, ...ips])] : ips;
+      target.value = merged.join("\n");
+      updateIpCount();
+      showToast("✅ " + (append ? t("toast.ipsAppended", { count: merged.length }) : t("toast.ipsReplaced", { count: merged.length })));
+    }
+
+    async function handleFiles(fileList) {
+      if (!fileList || !fileList.length) return;
+      const file = fileList[0];
+      try {
+        const text = await readFileAsText(file);
+        applyImportedText(text, file.name);
+      } catch (e) {
+        showToast("❌ " + t("toast.fileReadError"));
+      }
+    }
+
+    document.getElementById("build").addEventListener("click", buildOutput);
+    document.getElementById("btnOnePart").addEventListener("click", () => {
+      const { ips } = getAllGeneratorIps();
+      if (!ips.length) return showToast("⚠️ " + t("toast.emptyIpList"));
+      elPerPart.value = ips.length;
+      buildOutput();
+      showToast("✅ " + t("toast.singlePartDone"));
+    });
+    document.getElementById("dlPart").addEventListener("click", () => {
+      if (parts.length) downloadFile(elOut.value, `part_${currentPartIndex + 1}.txt`);
+    });
+    document.getElementById("dlAll").addEventListener("click", () => {
+      if (allConfigs.length) downloadFile(allConfigs.join("\n\n"), `all_configs.txt`);
+    });
+    elPartSelect.addEventListener("change", () => { currentPartIndex = Number(elPartSelect.value); refreshUI(); });
+    document.getElementById("prev").addEventListener("click", () => { if (currentPartIndex > 0) { currentPartIndex--; refreshUI(); } });
+    document.getElementById("next").addEventListener("click", () => { if (currentPartIndex < parts.length - 1) { currentPartIndex++; refreshUI(); } });
+    document.getElementById("copyPart").addEventListener("click", () => { navigator.clipboard.writeText(elOut.value); showToast("✅ " + t("toast.copied")); });
+    document.getElementById("copyAll").addEventListener("click", () => { navigator.clipboard.writeText(allConfigs.join("\n\n")); showToast("✅ " + t("toast.allCopied")); });
+    document.getElementById("clear").addEventListener("click", () => {
+      elConfig.value = ""; elIps.value = ""; elIpRanges.value = ""; elOut.value = "";
+      allConfigs = []; parts = []; elStatusDot.className = "status-dot"; refreshUI();
+      showToast("✅ " + t("toast.cleared"));
+    });
+    elIps.addEventListener("input", updateIpCount);
+    elIpRanges.addEventListener("input", updateIpCount);
+
+    document.querySelectorAll(".ip-subtab").forEach(btn => {
+      btn.addEventListener("click", () => switchIpTab(btn.dataset.ipTab));
+    });
+
+    document.querySelectorAll(".btn-cdn[data-cdn]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const key = btn.dataset.cdn;
+        const label = btn.textContent.trim();
+        showToast("⏳ " + t("toast.fetchingRanges"));
+        const ok = await loadIPRanges(key);
+        if (ok) {
+          switchIpTab("range");
+          updateIpCount();
+          const lines = elIpRanges.value.split("\n").filter(Boolean).length;
+          showToast("✅ " + t("toast.rangesLoaded", { count: lines, label }));
+        } else {
+          showToast("❌ " + t("toast.fetchError"));
+        }
+      });
+    });
+
+    elCdnOutputCount.addEventListener("input", syncCdnOutputFromRange);
+    elCdnOutputCountNum.addEventListener("input", syncCdnOutputFromNum);
+    elCdnOutputCountNum.addEventListener("change", syncCdnOutputFromNum);
+
+    document.getElementById("btnShuffleRanges").addEventListener("click", () => {
+      if (!elIpRanges.value.trim()) return showToast("⚠️ " + t("toast.enterRangeFirst"));
+      elIpRanges.value = shuffleLines(elIpRanges.value);
+      updateIpCount();
+      showToast("✅ " + t("toast.shuffled"));
+    });
+    elPickFile.addEventListener("click", () => elIpFile.click());
+    elIpFile.addEventListener("change", (e) => handleFiles(e.target.files));
+    elDropzone.addEventListener("click", (e) => {
+      if (!e.target.closest(".toggle") && !e.target.closest("button")) elIpFile.click();
+    });
+    ["dragenter", "dragover"].forEach(ev => elDropzone.addEventListener(ev, (e) => { e.preventDefault(); elDropzone.classList.add("dragover"); }));
+    ["dragleave", "drop"].forEach(ev => elDropzone.addEventListener(ev, (e) => { e.preventDefault(); elDropzone.classList.remove("dragover"); }));
+    elDropzone.addEventListener("drop", async (e) => {
+      if (e.dataTransfer.files.length) await handleFiles(e.dataTransfer.files);
+      else {
+        const dropped = e.dataTransfer.getData("text/plain");
+        if (dropped) applyImportedText(dropped, t("toast.text"));
+      }
+    });
+
+    // ==========================================
+    // TOOL 2: EXTRACTOR LOGIC
+    // ==========================================
+    const elExtInput = document.getElementById("extInput");
+    const elExtOut = document.getElementById("extOut");
+    const elExtDiff = document.getElementById("extDiff");
+    const elExtInCount = document.getElementById("extInCount");
+    const elExtOutCount = document.getElementById("extOutCount");
+    const elExtFilterCount = document.getElementById("extFilterCount");
+    const elExtDiffCount = document.getElementById("extDiffCount");
+    const elExtDiffUnique = document.getElementById("extDiffUnique");
+    const elExtDiffGap = document.getElementById("extDiffGap");
+    const elExtAddr = document.getElementById("extAddr");
+    const elExtSni = document.getElementById("extSni");
+    const elExtHost = document.getElementById("extHost");
+    const elExtWsTls = document.getElementById("extWsTls");
+    const elExtExpandCidr = document.getElementById("extExpandCidr");
+    const elExtCidrSwitchWrap = document.getElementById("extCidrSwitchWrap");
+    const elBtnExtract = document.getElementById("btnExtract");
+
+    function updateExtCidrSwitchVisibility() {
+      const hasCidr = detectCidrInInput(elExtInput.value);
+      elExtCidrSwitchWrap.style.display = hasCidr ? "block" : "none";
+      if (!hasCidr) elExtExpandCidr.checked = false;
+    }
+
+    function expandCidrForExtract(cidr) {
+      const full = expandCidr(cidr);
+      if (full !== null) return { ips: full, tooLarge: false };
+      const smart = expandCidrSmart(cidr);
+      if (smart.ips && smart.ips.length) return { ips: smart.ips, tooLarge: false };
+      return { ips: [], tooLarge: true };
+    }
+
+    function lineHasOnlyCidr(line) {
+      const norm = normalizeExtractLine(line);
+      const cidrs = findCidrsInText(norm);
+      if (!cidrs.length) return false;
+      if (CIDR_REGEX.test(norm)) return true;
+      const stripped = norm.replace(/["',]/g, "").trim();
+      return cidrs.length === 1 && stripped === cidrs[0];
+    }
+
+    function updateExtractButtonText() {
+      const extras = [];
+      if (elExtAddr.checked) extras.push(t("ext.addrs"));
+      if (elExtSni.checked) extras.push("SNI");
+      if (elExtHost.checked) extras.push("HOST");
+      let text = t("ext.extract");
+      if (extras.length) text += " + " + extras.join(" + ");
+      if (elExtWsTls.checked) text += " [WS+TLS]";
+      const label = document.getElementById("btnExtractLabel");
+      if (label) label.textContent = text;
+      else elBtnExtract.textContent = text;
+    }
+
+    function hasQueryParam(line, param, value) {
+      const m = line.match(new RegExp(`[?&]${param}=([^&^#\\s]+)`, "i"));
+      return m && decodeURIComponent(m[1]).toLowerCase() === value.toLowerCase();
+    }
+
+    function isWsTlsConfig(line) {
+      return hasQueryParam(line, "type", "ws") && hasQueryParam(line, "security", "tls");
+    }
+
+    function isPlainHostOrIp(text) {
+      const s = text.trim();
+      if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(s)) return true;
+      return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(s);
+    }
+
+    function looksLikeVlessConfig(line) {
+      return /(?:vless|vmess|trojan|ss):\/\//i.test(line) || /@[^:\s]+:\d+/.test(line);
+    }
+
+    function extractIpsFromLine(line) {
+      const trimmed = normalizeExtractLine(line);
+      if (lineHasOnlyCidr(line)) return [];
+      const vlessMatch = trimmed.match(/@([^:]+):/);
+      if (vlessMatch && vlessMatch[1]) {
+        if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(vlessMatch[1])) return [vlessMatch[1]];
+      }
+      if (findCidrsInText(trimmed).length) return [];
+      const ipMatch = trimmed.match(IPV4_REGEX);
+      return ipMatch ? [ipMatch[0]] : [];
+    }
+
+    function extractAddressFromLine(line) {
+      const trimmed = normalizeExtractLine(line);
+      const cidrs = findCidrsInText(trimmed);
+      if (cidrs.length === 1 && lineHasOnlyCidr(line)) return cidrs[0];
+
+      const vlessMatch = trimmed.match(/@([^:]+):/);
+      if (vlessMatch && vlessMatch[1]) return vlessMatch[1];
+
+      if (isPlainHostOrIp(trimmed)) return trimmed;
+
+      if (findCidrsInText(trimmed).length) return null;
+      const ipMatch = trimmed.match(IPV4_REGEX);
+      return ipMatch ? ipMatch[0] : null;
+    }
+
+    function extractParamFromLine(line, param) {
+      const m = line.match(new RegExp(`[?&]${param}=([^&^#\\s]+)`));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+
+    function collectFromLine(line, opts) {
+      const items = [];
+      const norm = normalizeExtractLine(line);
+      const cidrs = findCidrsInText(norm);
+      const ipRanges = findIpRangesInText(norm);
+      const hasNetworkInfo = cidrs.length > 0 || ipRanges.length > 0;
+      const cidrSet = new Set(cidrs);
+
+      cidrs.forEach(cidr => {
+        if (opts.expandCidr) {
+          const result = expandCidrForExtract(cidr);
+          if (!result.tooLarge) result.ips.forEach(ip => items.push(ip));
+        } else {
+          items.push(cidr);
+        }
+      });
+
+      ipRanges.forEach(range => {
+        if (range.cidr && cidrSet.has(range.cidr)) return;
+        if (opts.expandCidr) {
+          const result = range.cidr
+            ? expandCidrForExtract(range.cidr)
+            : expandIpRange(range.start, range.end);
+          if (!result.tooLarge) result.ips.forEach(ip => items.push(ip));
+        } else {
+          items.push(range.cidr || range.value);
+        }
+      });
+
+      if (hasNetworkInfo && !looksLikeVlessConfig(line)) {
+        return items;
+      }
+
+      if (!hasNetworkInfo) {
+        extractIpsFromLine(line).forEach(ip => items.push(ip));
+      }
+
+      if (opts.useAddr) {
+        const addr = extractAddressFromLine(line);
+        if (addr) items.push(addr);
+      }
+      if (opts.useSni) {
+        const sni = extractParamFromLine(line, "sni");
+        if (sni) items.push(sni);
+      }
+      if (opts.useHost) {
+        const host = extractParamFromLine(line, "host");
+        if (host) items.push(host);
+      }
+      return items;
+    }
+
+    function getLinePrimaryIp(line) {
+      const norm = normalizeExtractLine(line);
+      const cidrs = findCidrsInText(norm);
+      if (cidrs.length) return cidrs[0];
+      const ranges = findIpRangesInText(norm);
+      if (ranges.length) return ranges[0].cidr || ranges[0].value;
+      return extractIpsFromLine(line)[0] || extractAddressFromLine(line) || null;
+    }
+
+    function computeDuplicateIps(lines) {
+      const seen = new Set();
+      const duplicates = [];
+      lines.forEach(line => {
+        const ip = getLinePrimaryIp(line);
+        if (!ip) return;
+        if (seen.has(ip)) duplicates.push(ip);
+        else seen.add(ip);
+      });
+      const uniqueDupes = [...new Set(duplicates)];
+      return { duplicates, uniqueDupes };
+    }
+
+    function runExtraction() {
+      const raw = elExtInput.value.trim();
+      if (!raw) return showToast("⚠️ " + t("toast.emptyInput"));
+
+      const opts = {
+        useAddr: elExtAddr.checked,
+        useSni: elExtSni.checked,
+        useHost: elExtHost.checked,
+        expandCidr: elExtExpandCidr.checked,
+      };
+      const filterWsTls = elExtWsTls.checked;
+
+      const lines = raw.split(/\n+/).filter(l => l.trim());
+      elExtInCount.textContent = lines.length;
+
+      const processLines = filterWsTls ? lines.filter(isWsTlsConfig) : lines;
+      elExtFilterCount.textContent = filterWsTls ? processLines.length : "—";
+
+      if (filterWsTls && !processLines.length) {
+        elExtOut.value = "";
+        elExtDiff.value = "";
+        elExtOutCount.textContent = "0";
+        elExtDiffCount.textContent = "0";
+        elExtDiffUnique.textContent = "0";
+        elExtDiffGap.textContent = "0";
+        return showToast("⚠️ " + t("toast.noWsTls"));
+      }
+
+      const found = [];
+      let expandTruncated = false;
+      processLines.forEach(line => {
+        collectFromLine(line, opts).forEach(item => {
+          if (found.length < MAX_IP_EXPAND) found.push(item);
+          else expandTruncated = true;
+        });
+      });
+
+      const unique = [...new Set(found)];
+      elExtOut.value = unique.join("\n");
+      elExtOutCount.textContent = unique.length;
+
+      const { duplicates, uniqueDupes } = computeDuplicateIps(processLines);
+      elExtDiff.value = duplicates.join("\n");
+      elExtDiffCount.textContent = duplicates.length;
+      elExtDiffUnique.textContent = uniqueDupes.length;
+      elExtDiffGap.textContent = Math.max(0, processLines.length - unique.length);
+
+      if (unique.length > 0) {
+        let extra = "";
+        if (opts.expandCidr) extra += t("toast.expandNote");
+        if (filterWsTls) extra += t("toast.wsTlsNote", { count: processLines.length });
+        if (expandTruncated) extra += t("toast.truncNote", { max: MAX_IP_EXPAND });
+        showToast("✅ " + t("toast.found", { count: unique.length, extra }));
+      } else {
+        showToast("⚠️ " + t("toast.nothingFound"));
+      }
+    }
+
+    [elExtAddr, elExtSni, elExtHost, elExtWsTls].forEach(el => el.addEventListener("change", updateExtractButtonText));
+    elExtInput.addEventListener("input", updateExtCidrSwitchVisibility);
+    updateExtractButtonText();
+    updateExtCidrSwitchVisibility();
+
+    document.getElementById("btnExtract").addEventListener("click", runExtraction);
+    document.getElementById("extCopy").addEventListener("click", () => {
+      if (!elExtOut.value) return showToast("⚠️ " + t("toast.nothingToCopy"));
+      navigator.clipboard.writeText(elExtOut.value);
+      showToast("✅ " + t("toast.outputCopied"));
+    });
+    document.getElementById("extDiffCopy").addEventListener("click", () => {
+      if (!elExtDiff.value) return showToast("⚠️ " + t("toast.nothingToCopy"));
+      navigator.clipboard.writeText(elExtDiff.value);
+      showToast("✅ " + t("toast.dupCopied"));
+    });
+    document.getElementById("extClear").addEventListener("click", () => {
+      elExtInput.value = ""; elExtOut.value = ""; elExtDiff.value = "";
+      elExtInCount.textContent = "0"; elExtFilterCount.textContent = "—"; elExtOutCount.textContent = "0";
+      elExtDiffCount.textContent = "0"; elExtDiffUnique.textContent = "0"; elExtDiffGap.textContent = "0";
+      elExtExpandCidr.checked = false;
+      updateExtCidrSwitchVisibility();
+      showToast("✅ " + t("toast.cleared"));
+    });
+
+    // ==========================================
+    // TOOL 3: MORPH CONFIG (SNI + Spoof unified)
+    // ==========================================
+    const elMorphInput = document.getElementById("morphInput");
+    const elMorphOutput = document.getElementById("morphOutput");
+    const elMorphDomains = document.getElementById("morphDomains");
+    const elMorphInCount = document.getElementById("morphInCount");
+    const elMorphOutCount = document.getElementById("morphOutCount");
+    const elMorphSpoofMode = document.getElementById("morphSpoofMode");
+    const elMorphSpoofPanel = document.getElementById("morphSpoofPanel");
+    const elMorphAdvancedPanel = document.getElementById("morphAdvancedPanel");
+    const elMorphSpoofIp = document.getElementById("morphSpoofIp");
+    const elMorphSpoofPort = document.getElementById("morphSpoofPort");
+    const elMorphChangeAddr = document.getElementById("morphChangeAddr");
+    const elMorphChangeSni = document.getElementById("morphChangeSni");
+    const elMorphChangeHost = document.getElementById("morphChangeHost");
+    const elMorphAddrFields = document.getElementById("morphAddrFields");
+    const elMorphAddrHost = document.getElementById("morphAddrHost");
+    const elMorphAddrPort = document.getElementById("morphAddrPort");
+
+    function isValidHostOrIp(val) {
+      const s = val.trim();
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(s)) {
+        return s.split(".").every(o => Number(o) >= 0 && Number(o) <= 255);
+      }
+      return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(s);
+    }
+
+    function isValidPortVal(port) {
+      const n = Number(port);
+      return Number.isInteger(n) && n >= 1 && n <= 65535;
+    }
+
+    function replaceAtAddress(config, host, port) {
+      const m = config.match(/@([^:]+):(\d+)/);
+      if (!m) return null;
+      const usePort = port || m[2];
+      return config.replace(/@([^:]+):(\d+)/, `@${host}:${usePort}`);
+    }
+
+    function replaceSniParam(config, domain) {
+      let result = config;
+      if (result.includes("sni=")) {
+        result = result.replace(/([?&]sni=)[^&^#\s]+/, `$1${domain}`);
+      } else {
+        const hashIdx = result.indexOf("#");
+        const base = hashIdx > -1 ? result.substring(0, hashIdx) : result;
+        const fragment = hashIdx > -1 ? result.substring(hashIdx) : "";
+        const connector = base.includes("?") ? "&" : "?";
+        result = `${base}${connector}sni=${domain}${fragment}`;
+      }
+      return result;
+    }
+
+    function replaceHostParam(config, domain) {
+      if (!config.includes("host=")) return config;
+      return config.replace(/([?&]host=)[^&^#\s]+/, `$1${domain}`);
+    }
+
+    function updateMorphPanels() {
+      const spoofOn = elMorphSpoofMode.checked;
+      elMorphSpoofPanel.classList.toggle("active", spoofOn);
+      elMorphAdvancedPanel.classList.toggle("active", !spoofOn);
+    }
+
+    function updateMorphAddrFieldsVisibility() {
+      const show = elMorphChangeAddr.checked && !elMorphSpoofMode.checked;
+      elMorphAddrFields.style.display = show ? "grid" : "none";
+    }
+
+    function morphConfig(cfg, domain, opts) {
+      let result = cfg.trim();
+      if (!result.startsWith("vless://")) return null;
+
+      if (opts.spoofMode) {
+        return replaceAtAddress(result, opts.spoofIp, opts.spoofPort);
+      }
+
+      if (opts.changeAddr) {
+        const host = opts.customAddrHost || domain;
+        if (!host) return null;
+        const port = opts.customAddrPort || null;
+        result = replaceAtAddress(result, host, port);
+        if (!result) return null;
+      }
+
+      if (opts.changeSni) {
+        if (!domain) return null;
+        result = replaceSniParam(result, domain);
+      }
+
+      if (opts.changeHost) {
+        if (!domain) return null;
+        result = replaceHostParam(result, domain);
+      }
+
+      return result;
+    }
+
+    function buildMorphOutput() {
+      const configs = elMorphInput.value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l.startsWith("vless://"));
+
+      if (!configs.length) return showToast("⚠️ " + t("toast.noVless"));
+
+      const finalConfigs = [];
+
+      if (elMorphSpoofMode.checked) {
+        const spoofIp = elMorphSpoofIp.value.trim();
+        const spoofPort = elMorphSpoofPort.value.trim();
+        if (!isValidHostOrIp(spoofIp)) return showToast("⚠️ " + t("toast.invalidSpoofAddr"));
+        if (!isValidPortVal(spoofPort)) return showToast("⚠️ " + t("toast.invalidSpoofPort"));
+
+        configs.forEach(cfg => {
+          const modified = morphConfig(cfg, null, {
+            spoofMode: true,
+            spoofIp,
+            spoofPort,
+          });
+          if (modified) finalConfigs.push(modified);
+        });
+      } else {
+        const changeAddr = elMorphChangeAddr.checked;
+        const changeSni = elMorphChangeSni.checked;
+        const changeHost = elMorphChangeHost.checked;
+
+        if (!changeAddr && !changeSni && !changeHost) {
+          return showToast("⚠️ " + t("toast.enableSwitch"));
+        }
+
+        const domains = elMorphDomains.value
+          .split("\n")
+          .map(d => d.trim())
+          .filter(Boolean);
+
+        const customAddrHost = elMorphAddrHost.value.trim();
+        const customAddrPort = elMorphAddrPort.value.trim();
+
+        if (customAddrPort && !isValidPortVal(customAddrPort)) {
+          return showToast("⚠️ " + t("toast.invalidPort"));
+        }
+        if (customAddrHost && !isValidHostOrIp(customAddrHost)) {
+          return showToast("⚠️ " + t("toast.invalidAddr"));
+        }
+
+        const needsDomain = (changeSni || changeHost) || (changeAddr && !customAddrHost);
+        if (needsDomain && !domains.length) {
+          return showToast("⚠️ " + t("toast.emptyDomains"));
+        }
+
+        const variants = domains.length ? domains : [""];
+
+        configs.forEach(cfg => {
+          variants.forEach(dom => {
+            const modified = morphConfig(cfg, dom, {
+              spoofMode: false,
+              changeAddr,
+              changeSni,
+              changeHost,
+              customAddrHost: customAddrHost || null,
+              customAddrPort: customAddrPort || null,
+            });
+            if (modified) finalConfigs.push(modified);
+          });
+        });
+      }
+
+      if (!finalConfigs.length) return showToast("⚠️ " + t("toast.noMorphOutput"));
+
+      elMorphOutput.value = finalConfigs.join("\n\n");
+      elMorphInCount.textContent = configs.length;
+      elMorphOutCount.textContent = finalConfigs.length;
+      showToast("✅ " + t("toast.morphed", { count: finalConfigs.length }));
+    }
+
+    elMorphSpoofMode.addEventListener("change", () => {
+      updateMorphPanels();
+      updateMorphAddrFieldsVisibility();
+    });
+    elMorphChangeAddr.addEventListener("change", updateMorphAddrFieldsVisibility);
+
+    document.getElementById("btnMorphBuild").addEventListener("click", buildMorphOutput);
+    document.getElementById("morphCopy").addEventListener("click", () => {
+      if (!elMorphOutput.value) return showToast("⚠️ " + t("toast.nothingToCopy"));
+      navigator.clipboard.writeText(elMorphOutput.value);
+      showToast("✅ " + t("toast.outputCopied"));
+    });
+    document.getElementById("morphClear").addEventListener("click", () => {
+      elMorphInput.value = "";
+      elMorphOutput.value = "";
+      elMorphDomains.value = "";
+      elMorphSpoofMode.checked = false;
+      elMorphSpoofIp.value = "127.0.0.1";
+      elMorphSpoofPort.value = "40443";
+      elMorphChangeAddr.checked = true;
+      elMorphChangeSni.checked = true;
+      elMorphChangeHost.checked = false;
+      elMorphAddrHost.value = "";
+      elMorphAddrPort.value = "";
+      elMorphInCount.textContent = "0";
+      elMorphOutCount.textContent = "0";
+      updateMorphPanels();
+      updateMorphAddrFieldsVisibility();
+      showToast("✅ " + t("toast.cleared"));
+    });
+    elMorphInput.addEventListener("input", () => {
+      const lines = elMorphInput.value.split("\n").filter(l => l.trim().startsWith("vless://"));
+      elMorphInCount.textContent = lines.length;
+    });
+
+    updateMorphPanels();
+    updateMorphAddrFieldsVisibility();
+
+
+    // --- UI theme (all-in-one) ---
+    (function initUiTheme() {
+      const KEY = "vless-ui-theme";
+      const appShell = document.querySelector(".app-shell");
+
+      function applyUiTheme(name) {
+        const theme = name === "simple" ? "simple" : "cyber";
+        document.documentElement.setAttribute("data-ui-theme", theme);
+        if (appShell) appShell.classList.toggle("simple-layout", theme === "simple");
+        document.querySelectorAll(".theme-btn[data-ui-theme]").forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.uiTheme === theme);
+        });
+        try { localStorage.setItem(KEY, theme); } catch (_) {}
+      }
+
+      document.querySelectorAll(".theme-btn[data-ui-theme]").forEach(btn => {
+        btn.addEventListener("click", () => applyUiTheme(btn.dataset.uiTheme));
+      });
+
+      applyUiTheme(document.documentElement.getAttribute("data-ui-theme") || "cyber");
+    })();
+
+    // Init
+    applyI18n();
+    refreshUI();
+  </script>
+</body>
+</html>

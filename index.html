@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VLESS Tools — Choose Theme</title>
+  <meta name="description" content="VLESS config toolkit — Config Builder, IP Extractor, Config Morph. Pick CyberDeck or Simple UI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@500;700;800&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700&family=Rubik:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050505;
+      --fg: #f5f5f5;
+      --dim: #888;
+      --yellow: #fcee09;
+      --cyan: #00f0ff;
+      --border: rgba(252, 238, 9, 0.25);
+      --font: "Rubik", system-ui, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+      --display: "Orbitron", "Rubik", sans-serif;
+    }
+
+    html[lang="fa"] { --font: "Estedad", "Rubik", system-ui, sans-serif; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--fg);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 40px;
+      background-image:
+        radial-gradient(rgba(252, 238, 9, 0.06) 1px, transparent 1px),
+        linear-gradient(180deg, #0a0a0a 0%, #050505 100%);
+      background-size: 28px 28px, auto;
+    }
+
+    .wrap { width: min(920px, 100%); }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 4px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .lang-btn {
+      border: none;
+      background: transparent;
+      color: var(--dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .lang-btn.active { background: var(--yellow); color: #000; }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+      text-transform: uppercase;
+    }
+
+    .hero { text-align: center; margin-bottom: 36px; }
+
+    .hero h1 {
+      font-family: var(--display);
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      margin: 0 0 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--yellow);
+      text-shadow: 0 0 24px rgba(252, 238, 9, 0.35);
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 560px;
+      color: var(--dim);
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    @media (min-width: 720px) {
+      .cards { grid-template-columns: 1fr 1fr; }
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 22px 20px 20px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      overflow: hidden;
+    }
+
+    .card:hover { transform: translateY(-3px); }
+
+    .card-cyber {
+      border: 1px solid rgba(252, 238, 9, 0.45);
+      background: linear-gradient(145deg, rgba(252, 238, 9, 0.08), rgba(0,0,0,0.85));
+      box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.08);
+    }
+
+    .card-cyber:hover {
+      border-color: var(--yellow);
+      box-shadow: 0 0 32px rgba(252, 238, 9, 0.15);
+    }
+
+    .card-cyber::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 3px;
+      background: repeating-linear-gradient(-45deg, var(--yellow) 0 6px, #000 6px 12px);
+    }
+
+    .card-simple {
+      border: 1px solid #333;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px);
+    }
+
+    .card-simple:hover {
+      border-color: #0070f3;
+      box-shadow: 0 12px 40px rgba(0, 112, 243, 0.12);
+    }
+
+    .card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    .card-cyber .card-tag { color: var(--yellow); }
+    .card-simple .card-tag { color: #50e3c2; }
+
+    .card h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--dim);
+      line-height: 1.55;
+      font-size: 0.9rem;
+      flex: 1;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-cyber .card-cta { color: var(--yellow); }
+    .card-simple .card-cta { color: #0070f3; }
+
+    .footer-links {
+      margin-top: 32px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--dim);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 16px;
+    }
+
+    .footer-links a { color: var(--cyan); text-decoration: none; }
+    .footer-links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <span class="badge" data-i18n="badge">Protocol 6326-A44 · Local-first</span>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="fa">FA</button>
+        <button type="button" class="lang-btn active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ru">RU</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1><em>VLESS</em> <span data-i18n="title">TOOLS</span></h1>
+      <p data-i18n="subtitle">Config Builder · IP Extractor · Config Morph — choose your interface style.</p>
+    </section>
+
+    <div class="cards">
+      <a class="card card-cyber" href="vless-tools-cyber.html">
+        <span class="card-tag" data-i18n="cyber.tag">CyberDeck HUD</span>
+        <h2 data-i18n="cyber.title">Cyberpunk UI</h2>
+        <p data-i18n="cyber.desc">CP2077-inspired HUD with hazard stripes, neon accents, and tactical panels. Full feature set.</p>
+        <span class="card-cta" data-i18n="cyber.cta">Launch Cyber →</span>
+      </a>
+
+      <a class="card card-simple" href="vless-tools-simple.html">
+        <span class="card-tag" data-i18n="simple.tag">Minimal</span>
+        <h2 data-i18n="simple.title">Simple UI</h2>
+        <p data-i18n="simple.desc">Clean dark layout, rounded cards, and focused typography. Same tools, lighter visual noise.</p>
+        <span class="card-cta" data-i18n="simple.cta">Launch Simple →</span>
+      </a>
+    </div>
+
+    <div class="footer-links">
+      <a href="vless-tools-all-in-one.html" data-i18n="aio">Offline all-in-one HTML</a>
+      <a href="README.md" data-i18n="github">Project README</a>
+    </div>
+  </div>
+
+  <script>
+    const I18N = {
+      en: {
+        badge: "Protocol 6326-A44 · Local-first",
+        title: "TOOLS",
+        subtitle: "Config Builder · IP Extractor · Config Morph — choose your interface style.",
+        "cyber.tag": "CyberDeck HUD",
+        "cyber.title": "Cyberpunk UI",
+        "cyber.desc": "CP2077-inspired HUD with hazard stripes, neon accents, and tactical panels. Full feature set.",
+        "cyber.cta": "Launch Cyber →",
+        "simple.tag": "Minimal",
+        "simple.title": "Simple UI",
+        "simple.desc": "Clean dark layout, rounded cards, and focused typography. Same tools, lighter visual noise.",
+        "simple.cta": "Launch Simple →",
+        aio: "Offline all-in-one HTML",
+        github: "Project README",
+      },
+      fa: {
+        badge: "پروتکل 6326-A44 · پردازش محلی",
+        title: "TOOLS",
+        subtitle: "سازنده کانفیگ · استخراج IP · Morph کانفیگ — قالب رابط را انتخاب کنید.",
+        "cyber.tag": "CyberDeck HUD",
+        "cyber.title": "رابط سایبرپانک",
+        "cyber.desc": "HUD الهام‌گرفته از CP2077 با خطوط هشدار، نئون و پنل‌های تاکتیکی. تمام قابلیت‌ها.",
+        "cyber.cta": "ورود Cyber →",
+        "simple.tag": "مینیمال",
+        "simple.title": "رابط ساده",
+        "simple.desc": "چیدمان تیره و تمیز، کارت‌های گرد و تایپوگرافی خوانا. همان ابزارها، UI سبک‌تر.",
+        "simple.cta": "ورود Simple →",
+        aio: "نسخه آفلاین all-in-one",
+        github: "README پروژه",
+      },
+      ru: {
+        badge: "Протокол 6326-A44 · Локально",
+        title: "TOOLS",
+        subtitle: "Генератор · IP Extractor · Morph — выберите стиль интерфейса.",
+        "cyber.tag": "CyberDeck HUD",
+        "cyber.title": "Киберпанк UI",
+        "cyber.desc": "HUD в стиле CP2077: hazard-полосы, неон и тактические панели. Полный функционал.",
+        "cyber.cta": "Открыть Cyber →",
+        "simple.tag": "Минимализм",
+        "simple.title": "Простой UI",
+        "simple.desc": "Чистая тёмная вёрстка, скруглённые карточки и спокойная типографика. Те же инструменты.",
+        "simple.cta": "Открыть Simple →",
+        aio: "Автономный all-in-one HTML",
+        github: "README проекта",
+      },
+    };
+
+    const LANG_KEY = "vless-lang";
+    let lang = "en";
+
+    function t(key) {
+      return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
+    }
+
+    function applyLang(code) {
+      lang = I18N[code] ? code : "en";
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === lang);
+      });
+      try { localStorage.setItem(LANG_KEY, lang); } catch (_) {}
+    }
+
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", () => applyLang(btn.dataset.lang));
+    });
+
+    try { applyLang(localStorage.getItem(LANG_KEY) || "en"); }
+    catch (_) { applyLang("en"); }
+  </script>
+</body>
+</html>
