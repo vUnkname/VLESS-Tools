@@ -44,7 +44,7 @@
 | فایل | توضیح |
 |------|--------|
 | `index.html` | صفحه ورود GitHub Pages — انتخاب Cyber یا Simple. |
-| `vless-tools-all-in-one.html` | **مستقل** — CSS، JS، و هر دو تم در یک فایل (~۱۵۰ KB). مناسب دانلود و آفلاین. |
+| `vless-tools-all-in-one.html` | **مستقل** — CSS، JS، هر دو تم + داده CDN داخلی (~۲۷۰ KB). کاملاً آفلاین. |
 | `vless-tools-cyber.html` | تم CyberDeck؛ لینک به نسخه Simple. نیاز به `cyber-theme.css`. |
 | `vless-tools-simple.html` | تم ساده؛ لینک به Cyber. نیاز به `simple-theme.css`. |
 | `cyber-theme.css` | استایل HUD سایبرپانک. |
@@ -58,7 +58,7 @@
 2. **آفلاین:** `vless-tools-all-in-one.html` را دانلود و در مرورگر باز کنید.
 3. **جفت تم‌دار:** `vless-tools-cyber.html` + `cyber-theme.css` (یا simple + css) در یک پوشه.
 
-> دکمه‌های CDN به اینترنت برای دریافت لیست IP از GitHub نیاز دارند. بقیه آفلاین کار می‌کند.
+> **all-in-one** رنج‌های Cloudflare، Fastly و Gcore را داخل خودش دارد — بدون اینترنت. نسخه‌های cyber/simple برای CDN از GitHub درخواست می‌زنند.
 
 ---
 

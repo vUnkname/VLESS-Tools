@@ -44,7 +44,7 @@ Single-page web toolkit for working with **VLESS** proxy configs: build multi-IP
 | File | Description |
 |------|-------------|
 | `index.html` | GitHub Pages landing — pick Cyber or Simple theme. |
-| `vless-tools-all-in-one.html` | **Standalone** — all CSS, JS, and both themes in one file (~150 KB). Best for download & offline use. |
+| `vless-tools-all-in-one.html` | **Standalone** — all CSS, JS, both themes, and bundled CDN IP data (~270 KB). Fully offline. |
 | `vless-tools-cyber.html` | CyberDeck theme; links to Simple version. Requires `cyber-theme.css`. |
 | `vless-tools-simple.html` | Simple theme; links to Cyber version. Requires `simple-theme.css`. |
 | `cyber-theme.css` | Cyberpunk / HUD stylesheet. |
@@ -58,7 +58,7 @@ Single-page web toolkit for working with **VLESS** proxy configs: build multi-IP
 2. **Easiest offline:** download `vless-tools-all-in-one.html` and open it in Chrome, Firefox, or Edge.
 3. **Themed pair:** keep `vless-tools-cyber.html` + `cyber-theme.css` (or simple + `simple-theme.css`) in the same folder and open the HTML file.
 
-> CDN range buttons need internet access to fetch IP lists from GitHub. Everything else works offline.
+> **All-in-one** includes Cloudflare, Fastly, and Gcore IP ranges built in — no internet needed. The themed HTML files (`cyber` / `simple`) fetch CDN lists online from GitHub.
 
 ---
 

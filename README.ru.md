@@ -44,7 +44,7 @@
 | Файл | Описание |
 |------|----------|
 | `index.html` | Стартовая страница GitHub Pages — выбор Cyber или Simple. |
-| `vless-tools-all-in-one.html` | **Автономный** — весь CSS, JS и обе темы (~150 KB). |
+| `vless-tools-all-in-one.html` | **Автономный** — CSS, JS, обе темы и встроенные CDN-данные (~270 KB). Полностью офлайн. |
 | `vless-tools-cyber.html` | Тема CyberDeck; ссылка на Simple. Нужен `cyber-theme.css`. |
 | `vless-tools-simple.html` | Простая тема; ссылка на Cyber. Нужен `simple-theme.css`. |
 | `cyber-theme.css` | Стили CyberDeck. |
@@ -58,7 +58,7 @@
 2. **Офлайн:** скачайте `vless-tools-all-in-one.html` и откройте в Chrome, Firefox или Edge.
 3. **Пара тем:** держите `vless-tools-cyber.html` + `cyber-theme.css` (или simple + css) в одной папке.
 
-> Кнопки CDN требуют интернет для загрузки списков с GitHub. Остальное работает офлайн.
+> **All-in-one** содержит диапазоны Cloudflare, Fastly и Gcore — интернет не нужен. Версии cyber/simple загружают CDN-списки с GitHub.
 
 ---
 
