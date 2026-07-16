@@ -907,6 +907,18 @@ input[type="number"]::-webkit-inner-spin-button {
   text-transform: uppercase;
 }
 
+.metrics-ext-input {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.metrics-ext-input.show-ws-filter {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#extFilterMetricWrap[hidden] {
+  display: none !important;
+}
+
 /* ── Toolbar ── */
 .toolbar {
   display: flex;
@@ -993,7 +1005,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .toolbar-block {
   margin-top: 10px;
-  margin-bottom: 0;
+  margin-bottom: 14px;
 }
 
 .ico {
@@ -1338,11 +1350,21 @@ input[type="number"]::-webkit-inner-spin-button {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-top: 0;
+  margin-bottom: 14px;
   justify-content: center;
+  clear: both;
 }
 
-.extract-filter { margin-bottom: 10px; }
+.extract-filter {
+  margin-bottom: 14px;
+  display: block;
+  clear: both;
+}
+
+.extract-filter + .extract-switches {
+  margin-top: 0;
+}
 
 .switch-item {
   flex: 1;

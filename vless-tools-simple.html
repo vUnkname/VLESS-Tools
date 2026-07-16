@@ -184,10 +184,16 @@
                 </span>
               </label>
             </div>
-            <div class="metrics">
+            <div class="metrics metrics-ext-input" id="extInputMetrics">
               <div class="metric"><div class="metric-val" id="extInCount">0</div><div class="metric-lbl" data-i18n="ext.inLines">Input lines</div></div>
-              <div class="metric"><div class="metric-val" id="extFilterCount">—</div><div class="metric-lbl" data-i18n="ext.filterWs">WS+TLS pass</div></div>
+              <div class="metric" id="extFilterMetricWrap" hidden>
+                <div class="metric-val" id="extFilterCount">0</div>
+                <div class="metric-lbl" data-i18n="ext.filterWs">WS+TLS pass</div>
+              </div>
               <div class="metric"><div class="metric-val" id="extOutCount">0</div><div class="metric-lbl" data-i18n="ext.result">Extract result</div></div>
+            </div>
+            <div class="toolbar toolbar-block">
+              <button id="extInputClear" type="button" class="btn btn-danger btn-block" data-i18n="ext.clearInput">Clear input</button>
             </div>
           </section>
 
@@ -200,7 +206,7 @@
             <div class="toolbar toolbar-block">
               <button id="btnExtract" class="btn btn-purple btn-block"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M6 2h4l4 4v8H2V2h4zm0 1v3h3V3H6zm-2 9h8V7H4v7zm2-5h1v3H6V7zm2 0h3v3H8V7z"/></svg> <span id="btnExtractLabel" data-i18n="ext.extract">Extract IPs</span></button>
             </div>
-            <div class="extract-filter">
+            <div class="extract-filter ext-ws-tls">
               <label class="switch-item" data-i18n-title="ext.wsTlsTitle">
                 <span class="switch-label" data-i18n="ext.wsTls">WS + TLS only</span>
                 <span class="switch">
@@ -235,7 +241,7 @@
             <textarea id="extOut" class="area-md" readonly data-i18n-placeholder="ph.extOut" placeholder="Results appear here..."></textarea>
             <div class="toolbar toolbar-block">
               <button id="extCopy" class="btn btn-secondary btn-flex"><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M4 2h8a2 2 0 012 2v8H6a2 2 0 01-2-2V2zm2 10h8a2 2 0 002-2V4h2v6a4 4 0 01-4 4H6v-2z"/></svg> <span data-i18n="ext.copyOut">Copy output</span></button>
-              <button id="extClear" class="btn btn-danger" data-i18n="gen.clear">Clear</button>
+              <button id="extClear" type="button" class="btn btn-danger" data-i18n="ext.clearOutput">Clear output</button>
             </div>
           </section>
         </div>
@@ -451,6 +457,10 @@
         "ext.addrs": "Addresses",
         "ext.sniTitle": "sni= query parameter",
         "ext.hostTitle": "host= query parameter",
+        "ext.clearInput": "Clear input",
+        "ext.clearOutput": "Clear output",
+        "ext.clearInput": "Clear input",
+        "ext.clearOutput": "Clear output",
         "ext.copyOut": "Copy output",
         "ext.dupTitle": "3. Duplicate IPs",
         "ext.dupCount": "Duplicates",
@@ -595,6 +605,10 @@
         "ext.addrs": "آدرس‌ها",
         "ext.sniTitle": "پارامتر sni=",
         "ext.hostTitle": "پارامتر host=",
+        "ext.clearInput": "پاک ورودی",
+        "ext.clearOutput": "پاک خروجی",
+        "ext.clearInput": "پاک ورودی",
+        "ext.clearOutput": "پاک خروجی",
         "ext.copyOut": "کپی خروجی",
         "ext.dupTitle": "۳. IPهای تکراری",
         "ext.dupCount": "تعداد تکراری",
@@ -739,6 +753,10 @@
         "ext.addrs": "Адреса",
         "ext.sniTitle": "Параметр sni=",
         "ext.hostTitle": "Параметр host=",
+        "ext.clearInput": "Очистить ввод",
+        "ext.clearOutput": "Очистить вывод",
+        "ext.clearInput": "Очистить ввод",
+        "ext.clearOutput": "Очистить вывод",
         "ext.copyOut": "Копировать вывод",
         "ext.dupTitle": "3. Дубликаты IP",
         "ext.dupCount": "Дубликаты",
@@ -1471,36 +1489,60 @@
       return /(?:vless|vmess|trojan|ss):\/\//i.test(line) || /@[^:\s]+:\d+/.test(line);
     }
 
+    function findIpsInText(text) {
+      const found = [];
+      const seen = new Set();
+      IPV4_REGEX.lastIndex = 0;
+      let m;
+      while ((m = IPV4_REGEX.exec(text)) !== null) {
+        const ip = m[0];
+        if (isValidOctets(ip) && !seen.has(ip)) {
+          seen.add(ip);
+          found.push(ip);
+        }
+      }
+      return found;
+    }
+
     function extractIpsFromLine(line) {
       const trimmed = normalizeExtractLine(line);
       if (lineHasOnlyCidr(line)) return [];
       const vlessMatch = trimmed.match(/@([^:]+):/);
       if (vlessMatch && vlessMatch[1]) {
-        if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(vlessMatch[1])) return [vlessMatch[1]];
+        const host = vlessMatch[1];
+        if (/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) && isValidOctets(host)) return [host];
       }
       if (findCidrsInText(trimmed).length) return [];
-      const ipMatch = trimmed.match(IPV4_REGEX);
-      return ipMatch ? [ipMatch[0]] : [];
+      return findIpsInText(trimmed);
     }
 
-    function extractAddressFromLine(line) {
+    function extractAddressesFromLine(line) {
       const trimmed = normalizeExtractLine(line);
       const cidrs = findCidrsInText(trimmed);
-      if (cidrs.length === 1 && lineHasOnlyCidr(line)) return cidrs[0];
+      if (cidrs.length === 1 && lineHasOnlyCidr(line)) return [cidrs[0]];
 
       const vlessMatch = trimmed.match(/@([^:]+):/);
-      if (vlessMatch && vlessMatch[1]) return vlessMatch[1];
+      if (vlessMatch && vlessMatch[1]) return [vlessMatch[1]];
 
-      if (isPlainHostOrIp(trimmed)) return trimmed;
+      if (isPlainHostOrIp(trimmed)) return [trimmed];
 
-      if (findCidrsInText(trimmed).length) return null;
-      const ipMatch = trimmed.match(IPV4_REGEX);
-      return ipMatch ? ipMatch[0] : null;
+      if (findCidrsInText(trimmed).length) return [];
+      return findIpsInText(trimmed);
     }
 
-    function extractParamFromLine(line, param) {
-      const m = line.match(new RegExp(`[?&]${param}=([^&^#\\s]+)`));
-      return m ? decodeURIComponent(m[1]) : null;
+    function extractParamsFromLine(line, param) {
+      const results = [];
+      const seen = new Set();
+      const re = new RegExp(`[?&]${param}=([^&^#\\s]+)`, "gi");
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const val = decodeURIComponent(m[1]);
+        if (!seen.has(val)) {
+          seen.add(val);
+          results.push(val);
+        }
+      }
+      return results;
     }
 
     function collectFromLine(line, opts) {
@@ -1541,16 +1583,13 @@
       }
 
       if (opts.useAddr) {
-        const addr = extractAddressFromLine(line);
-        if (addr) items.push(addr);
+        extractAddressesFromLine(line).forEach(addr => items.push(addr));
       }
       if (opts.useSni) {
-        const sni = extractParamFromLine(line, "sni");
-        if (sni) items.push(sni);
+        extractParamsFromLine(line, "sni").forEach(v => items.push(v));
       }
       if (opts.useHost) {
-        const host = extractParamFromLine(line, "host");
-        if (host) items.push(host);
+        extractParamsFromLine(line, "host").forEach(v => items.push(v));
       }
       return items;
     }
@@ -1561,7 +1600,10 @@
       if (cidrs.length) return cidrs[0];
       const ranges = findIpRangesInText(norm);
       if (ranges.length) return ranges[0].cidr || ranges[0].value;
-      return extractIpsFromLine(line)[0] || extractAddressFromLine(line) || null;
+      const ips = extractIpsFromLine(line);
+      if (ips.length) return ips[0];
+      const addrs = extractAddressesFromLine(line);
+      return addrs.length ? addrs[0] : null;
     }
 
     function computeDuplicateIps(lines) {
@@ -1593,7 +1635,8 @@
       elExtInCount.textContent = lines.length;
 
       const processLines = filterWsTls ? lines.filter(isWsTlsConfig) : lines;
-      elExtFilterCount.textContent = filterWsTls ? processLines.length : "—";
+      if (filterWsTls) elExtFilterCount.textContent = processLines.length;
+      updateExtFilterMetricVisibility();
 
       if (filterWsTls && !processLines.length) {
         elExtOut.value = "";
@@ -1606,12 +1649,8 @@
       }
 
       const found = [];
-      let expandTruncated = false;
       processLines.forEach(line => {
-        collectFromLine(line, opts).forEach(item => {
-          if (found.length < MAX_IP_EXPAND) found.push(item);
-          else expandTruncated = true;
-        });
+        collectFromLine(line, opts).forEach(item => found.push(item));
       });
 
       const unique = [...new Set(found)];
@@ -1628,16 +1667,42 @@
         let extra = "";
         if (opts.expandCidr) extra += t("toast.expandNote");
         if (filterWsTls) extra += t("toast.wsTlsNote", { count: processLines.length });
-        if (expandTruncated) extra += t("toast.truncNote", { max: MAX_IP_EXPAND });
         showToast("✅ " + t("toast.found", { count: unique.length, extra }));
       } else {
         showToast("⚠️ " + t("toast.nothingFound"));
       }
     }
 
-    [elExtAddr, elExtSni, elExtHost, elExtWsTls].forEach(el => el.addEventListener("change", updateExtractButtonText));
-    elExtInput.addEventListener("input", updateExtCidrSwitchVisibility);
+    const elExtInputMetrics = document.getElementById("extInputMetrics");
+    const elExtFilterMetricWrap = document.getElementById("extFilterMetricWrap");
+
+    function updateExtFilterMetricVisibility() {
+      const on = elExtWsTls.checked;
+      if (elExtFilterMetricWrap) elExtFilterMetricWrap.hidden = !on;
+      if (elExtInputMetrics) elExtInputMetrics.classList.toggle("show-ws-filter", on);
+    }
+
+    function updateExtInCount() {
+      const lines = elExtInput.value.split(/\n+/).filter(l => l.trim());
+      elExtInCount.textContent = lines.length;
+      if (elExtWsTls.checked) {
+        elExtFilterCount.textContent = lines.filter(isWsTlsConfig).length;
+      }
+      updateExtFilterMetricVisibility();
+    }
+
+    [elExtAddr, elExtSni, elExtHost, elExtWsTls].forEach(el => {
+      el.addEventListener("change", () => {
+        updateExtractButtonText();
+        updateExtInCount();
+      });
+    });
+    elExtInput.addEventListener("input", () => {
+      updateExtInCount();
+      updateExtCidrSwitchVisibility();
+    });
     updateExtractButtonText();
+    updateExtInCount();
     updateExtCidrSwitchVisibility();
 
     document.getElementById("btnExtract").addEventListener("click", runExtraction);
@@ -1651,12 +1716,21 @@
       navigator.clipboard.writeText(elExtDiff.value);
       showToast("✅ " + t("toast.dupCopied"));
     });
-    document.getElementById("extClear").addEventListener("click", () => {
-      elExtInput.value = ""; elExtOut.value = ""; elExtDiff.value = "";
-      elExtInCount.textContent = "0"; elExtFilterCount.textContent = "—"; elExtOutCount.textContent = "0";
-      elExtDiffCount.textContent = "0"; elExtDiffUnique.textContent = "0"; elExtDiffGap.textContent = "0";
+    document.getElementById("extInputClear").addEventListener("click", () => {
+      elExtInput.value = "";
+      elExtInCount.textContent = "0";
       elExtExpandCidr.checked = false;
       updateExtCidrSwitchVisibility();
+      updateExtFilterMetricVisibility();
+      showToast("✅ " + t("toast.cleared"));
+    });
+    document.getElementById("extClear").addEventListener("click", () => {
+      elExtOut.value = "";
+      elExtDiff.value = "";
+      elExtOutCount.textContent = "0";
+      elExtDiffCount.textContent = "0";
+      elExtDiffUnique.textContent = "0";
+      elExtDiffGap.textContent = "0";
       showToast("✅ " + t("toast.cleared"));
     });
 
