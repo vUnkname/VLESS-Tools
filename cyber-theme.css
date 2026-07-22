@@ -701,6 +701,19 @@ input[type="number"]::-webkit-inner-spin-button {
   flex: 1;
 }
 
+#ip-panel-list {
+  gap: 12px;
+}
+
+#ip-panel-list .gen-host-filters {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#ip-panel-list .dropzone {
+  margin-top: 0;
+}
+
 .card input.input-mini {
   width: 50px;
   flex-shrink: 0;
@@ -1704,4 +1717,9 @@ input[type="number"]::-webkit-inner-spin-button {
   .drop-actions .btn { width: 100%; }
   .morph-switch-grid { grid-template-columns: 1fr; }
   .metrics { grid-template-columns: 1fr; }
+}
+
+.gen-host-filters {
+  margin-top: 12px;
+  margin-bottom: 0;
 }

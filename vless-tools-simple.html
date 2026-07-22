@@ -73,6 +73,22 @@
 
             <div id="ip-panel-list" class="ip-panel active">
               <textarea id="ips" class="area-md" data-i18n-placeholder="ph.ips" placeholder="One IP or CIDR per line"></textarea>
+              <div class="extract-switches gen-host-filters">
+                <label class="switch-item" data-i18n-title="gen.useIpTitle">
+                  <span class="switch-label" data-i18n="gen.useIp">IP</span>
+                  <span class="switch">
+                    <input type="checkbox" id="genUseIp" checked>
+                    <span class="switch-slider"></span>
+                  </span>
+                </label>
+                <label class="switch-item" data-i18n-title="gen.useAddrTitle">
+                  <span class="switch-label" data-i18n="gen.useAddr">Address</span>
+                  <span class="switch">
+                    <input type="checkbox" id="genUseAddr" checked>
+                    <span class="switch-slider"></span>
+                  </span>
+                </label>
+              </div>
               <div id="dropzone" class="dropzone" data-i18n-title="gen.dropTitle">
                 <div class="dropzone-text">
                   <strong><svg class="ico" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1L3 6h3v6h4V6h3L8 1zm-6 12v2h12v-2H2z"/></svg> <span data-i18n="gen.dropTitle">Import file or Drag &amp; Drop</span></strong>
@@ -414,6 +430,10 @@
         "gen.configHint": "Paste a VLESS link — <code>@host:</code> is replaced with entered IPs or ranges.",
         "gen.ipsTitle": "2. IPs",
         "gen.ipList": "IP list",
+        "gen.useIp": "IP",
+        "gen.useAddr": "Address",
+        "gen.useIpTitle": "Include IP and CIDR entries",
+        "gen.useAddrTitle": "Include domain / host entries",
         "gen.ipRange": "IP ranges",
         "gen.dropTitle": "Import file or Drag & Drop",
         "gen.dropHint": "txt / csv / log — single IP or CIDR",
@@ -505,7 +525,9 @@
         "toast.fileDownloaded": "File downloaded",
         "toast.invalidBase": "Invalid base config",
         "toast.rangeOverflow": "Range {cidr} cannot be processed",
-        "toast.noValidIp": "No valid IP found",
+        "toast.noValidIp": "No valid IP or host found",
+        "toast.built": "{count} configs generated · {parts} part(s){extra}",
+        "toast.genFilterOff": "Enable IP or Address filter",
         "toast.noIpInSource": "No valid IP/CIDR in «{source}»",
         "toast.ipsAppended": "{count} IPs appended",
         "toast.ipsReplaced": "{count} IPs replaced",
@@ -562,6 +584,10 @@
         "gen.configHint": "یک لینک VLESS — آدرس <code>@host:</code> با IPها یا رنج‌های واردشده جایگزین می‌شود.",
         "gen.ipsTitle": "۲. IPها",
         "gen.ipList": "لیست IP",
+        "gen.useIp": "IP",
+        "gen.useAddr": "آدرس",
+        "gen.useIpTitle": "شامل IP و CIDR",
+        "gen.useAddrTitle": "شامل دامنه / آدرس",
         "gen.ipRange": "رنج IP",
         "gen.dropTitle": "وارد کردن از فایل یا Drag & Drop",
         "gen.dropHint": "txt / csv / log — IP تکی یا CIDR",
@@ -653,7 +679,9 @@
         "toast.fileDownloaded": "فایل دانلود شد",
         "toast.invalidBase": "کانفیگ پایه معتبر نیست",
         "toast.rangeOverflow": "رنج {cidr} قابل پردازش نیست",
-        "toast.noValidIp": "هیچ IP معتبری یافت نشد",
+        "toast.noValidIp": "IP یا آدرس معتبری یافت نشد",
+        "toast.built": "{count} کانفیگ ساخته شد · {parts} پارت{extra}",
+        "toast.genFilterOff": "حداقل IP یا آدرس را فعال کنید",
         "toast.noIpInSource": "از «{source}» هیچ IP/CIDR معتبر پیدا نشد",
         "toast.ipsAppended": "{count} IP اضافه شد",
         "toast.ipsReplaced": "{count} IP جایگزین شد",
@@ -710,6 +738,10 @@
         "gen.configHint": "VLESS ссылка — <code>@host:</code> заменяется на введённые IP или диапазоны.",
         "gen.ipsTitle": "2. IP адреса",
         "gen.ipList": "Список IP",
+        "gen.useIp": "IP",
+        "gen.useAddr": "Адрес",
+        "gen.useIpTitle": "Включать IP и CIDR",
+        "gen.useAddrTitle": "Включать домен / адрес",
         "gen.ipRange": "Диапазоны IP",
         "gen.dropTitle": "Импорт файла или Drag & Drop",
         "gen.dropHint": "txt / csv / log — один IP или CIDR",
@@ -801,7 +833,9 @@
         "toast.fileDownloaded": "Файл скачан",
         "toast.invalidBase": "Неверный базовый конфиг",
         "toast.rangeOverflow": "Диапазон {cidr} не обрабатывается",
-        "toast.noValidIp": "Действительных IP не найдено",
+        "toast.noValidIp": "IP или адрес не найден",
+        "toast.built": "{count} конфигов · {parts} часть(ей){extra}",
+        "toast.genFilterOff": "Включите IP или адрес",
         "toast.noIpInSource": "В «{source}» нет IP/CIDR",
         "toast.ipsAppended": "Добавлено {count} IP",
         "toast.ipsReplaced": "Заменено {count} IP",
@@ -1080,21 +1114,53 @@
       return { ips: [], tooLarge: true, cidr };
     }
 
-    function parseLineToIps(line) {
+    function isGeneratorHostEntry(text) {
+      const s = text.trim();
+      if (!s || s.length > 253) return false;
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(s)) return isValidOctets(s);
+      return /^[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)+$/.test(s);
+    }
+
+    function getGeneratorHostOpts() {
+      return {
+        useIp: elGenUseIp ? elGenUseIp.checked : true,
+        useAddr: elGenUseAddr ? elGenUseAddr.checked : true,
+      };
+    }
+
+    function isLineIpEntry(trimmed) {
+      if (CIDR_REGEX.test(trimmed)) return true;
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed) && isValidOctets(trimmed)) return true;
+      const matches = trimmed.match(IPV4_REGEX) || [];
+      return matches.some(ip => isValidOctets(ip));
+    }
+
+    function parseLineToIps(line, opts = { useIp: true, useAddr: true }) {
       const trimmed = line.trim();
       if (!trimmed) return [];
+      const useIp = opts.useIp !== false;
+      const useAddr = opts.useAddr !== false;
+
       if (CIDR_REGEX.test(trimmed)) {
+        if (!useIp) return [];
         const { ips, sampled, tooLarge, cidr } = expandCidrSmart(trimmed);
         if (tooLarge) return { overflow: true, cidr };
         if (sampled) return { ips, sampled: true, cidr };
         return ips;
       }
-      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed) && isValidOctets(trimmed)) return [trimmed];
+      if (/^(\d{1,3}\.){3}\d{1,3}$/.test(trimmed) && isValidOctets(trimmed)) {
+        return useIp ? [trimmed] : [];
+      }
+      if (isGeneratorHostEntry(trimmed)) {
+        if (isLineIpEntry(trimmed)) return useIp ? [trimmed] : [];
+        return useAddr ? [trimmed] : [];
+      }
+      if (!useIp) return [];
       const matches = trimmed.match(IPV4_REGEX) || [];
-      return [...new Set(matches)];
+      return [...new Set(matches.filter(ip => isValidOctets(ip)))];
     }
 
-    function parseAllIps(text, maxTotal = MAX_IP_EXPAND) {
+    function parseAllIps(text, maxTotal = MAX_IP_EXPAND, opts = { useIp: true, useAddr: true }) {
       const lines = text.split(/\n+/);
       const result = [];
       const seen = new Set();
@@ -1103,7 +1169,7 @@
       let sampledCount = 0;
 
       for (const line of lines) {
-        const parsed = parseLineToIps(line);
+        const parsed = parseLineToIps(line, opts);
         if (!Array.isArray(parsed)) {
           if (parsed && parsed.overflow) overflowCidr = parsed.cidr;
           if (parsed && parsed.sampled) {
@@ -1135,10 +1201,11 @@
     }
 
     function getAllGeneratorIps() {
+      const opts = getGeneratorHostOpts();
       const listText = elIps.value.trim();
       const rangeText = elIpRanges.value.trim();
       const combined = [listText, rangeText].filter(Boolean).join("\n");
-      return parseAllIps(combined);
+      return { ...parseAllIps(combined, MAX_IP_EXPAND, opts), opts };
     }
 
     // ==========================================
@@ -1163,6 +1230,8 @@
     const elAppendMode = document.getElementById("appendMode");
     const elCdnOutputCount = document.getElementById("cdnOutputCount");
     const elCdnOutputCountNum = document.getElementById("cdnOutputCountNum");
+    const elGenUseIp = document.getElementById("genUseIp");
+    const elGenUseAddr = document.getElementById("genUseAddr");
 
     let allConfigs = [], parts = [], currentPartIndex = 0, activeIpTab = "list";
 
@@ -1286,6 +1355,11 @@
       const base = elConfig.value.trim();
       if (!base || !base.includes("@")) return showToast("⚠️ " + t("toast.invalidBase"));
 
+      const hostOpts = getGeneratorHostOpts();
+      if (!hostOpts.useIp && !hostOpts.useAddr) {
+        return showToast("⚠️ " + t("toast.genFilterOff"));
+      }
+
       const { ips, truncated, overflowCidr, sampledCount } = getAllGeneratorIps();
       if (overflowCidr) return showToast("⚠️ " + t("toast.rangeOverflow", { cidr: overflowCidr }));
       if (!ips.length) return showToast("⚠️ " + t("toast.noValidIp"));
@@ -1302,7 +1376,7 @@
       let note = "";
       if (sampledCount) note += t("toast.sampleNote", { count: sampledCount });
       if (truncated) note += t("toast.limitedNote", { max: MAX_IP_EXPAND });
-      showToast(`✅ ${allConfigs.length}${note}`);
+      showToast("✅ " + t("toast.built", { count: allConfigs.length, parts: parts.length, extra: note }));
     }
 
     function readFileAsText(file) {
@@ -1367,6 +1441,8 @@
     });
     elIps.addEventListener("input", updateIpCount);
     elIpRanges.addEventListener("input", updateIpCount);
+    if (elGenUseIp) elGenUseIp.addEventListener("change", updateIpCount);
+    if (elGenUseAddr) elGenUseAddr.addEventListener("change", updateIpCount);
 
     document.querySelectorAll(".ip-subtab").forEach(btn => {
       btn.addEventListener("click", () => switchIpTab(btn.dataset.ipTab));
